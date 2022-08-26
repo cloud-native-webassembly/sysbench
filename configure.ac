@@ -144,6 +144,12 @@ SB_LUAJIT
 # Set Concurrency Kit flags
 SB_CONCURRENCY_KIT
 
+# Set Python flags
+SB_PYTHON
+
+# Set wasm flags
+SB_WASM
+
 # Check if we should enable large files support
 AC_ARG_ENABLE(largefile,
     AS_HELP_STRING([--enable-largefile],[enable large files support (default is enabled)]), ,
@@ -369,7 +375,7 @@ fi
 
 AM_CFLAGS="${CC_WARNINGS} ${AM_CFLAGS} ${PTHREAD_CFLAGS}"
 
-AM_CPPFLAGS="${AM_CPPFLAGS} -I\$(top_srcdir)/src ${LUAJIT_CFLAGS} ${CK_CFLAGS}"
+AM_CPPFLAGS="${AM_CPPFLAGS} -I\$(top_srcdir)/src ${LUAJIT_CFLAGS} ${CK_CFLAGS} ${PYTHON_CFLAGS} ${WASM_CFLAGS}"
 
 AM_LDFLAGS="$PTHREAD_LIBS"
 
@@ -406,6 +412,7 @@ src/tests/threads/Makefile
 src/tests/mutex/Makefile
 src/lua/Makefile
 src/lua/internal/Makefile
+src/python/Makefile
 tests/Makefile
 tests/include/config.sh
 snap/snapcraft.yaml
@@ -434,6 +441,19 @@ AC_MSG_RESULT([LUAJIT_CFLAGS      : ${LUAJIT_CFLAGS}])
 AC_MSG_RESULT([LUAJIT_LIBS        : ${LUAJIT_LIBS}])
 AC_MSG_RESULT([LUAJIT_LDFLAGS     : ${LUAJIT_LDFLAGS}])
 AC_MSG_RESULT([])
+if test "x${ac_cv_enable_python}" != xno; then
+  AC_MSG_RESULT([PYTHON_CFLAGS      : ${PYTHON_CFLAGS}])
+  AC_MSG_RESULT([PYTHON_LDFLAGS     : ${PYTHON_LDFLAGS}])
+  AC_MSG_RESULT([PYTHON_LIBS        : ${PYTHON_LIBS}])
+  AC_MSG_RESULT([])
+fi
+if test "x${ac_cv_enable_wasm}" != xno; then
+  AC_MSG_RESULT([WASM               : ${WASM}])
+  AC_MSG_RESULT([WASM_CFLAGS        : ${WASM_CFLAGS}])
+  AC_MSG_RESULT([WASM_LDFLAGS       : ${WASM_LDFLAGS}])
+  AC_MSG_RESULT([WASM_LIBS          : ${WASM_LIBS}])
+  AC_MSG_RESULT([])
+fi
 AC_MSG_RESULT([Concurrency Kit    : ${sb_use_ck}])
 if test "$sb_use_ck" = bundled; then
   AC_MSG_RESULT([CK_CFLAGS          : ${CK_CFLAGS}])
