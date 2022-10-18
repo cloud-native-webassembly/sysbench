@@ -19,8 +19,7 @@
 # ---------------------------------------------------------------------------
 # modified https://github.com/libyal/libsmraw/blob/main/m4/python.m4
 
-AC_DEFUN([AX_PROG_PYTHON],
-  [
+AC_DEFUN([AX_PROG_PYTHON], [
     ax_python_progs="python3";
     ax_python_config="python3-config"
     AS_IF(
@@ -38,14 +37,13 @@ AC_DEFUN([AX_PROG_PYTHON],
     
   AC_SUBST([PYTHON_HOME])
   AC_SUBST([PYTHON], [$ax_python_progs])
-  AC_SUBST([PYTHON_CONFIG], [$ax_python_config])])
+  AC_SUBST([PYTHON_CONFIG], [$ax_python_config])]
+)
 
-AC_DEFUN([AX_PYTHON_CHECK],
-  [AX_PROG_PYTHON
+AC_DEFUN([AX_PYTHON_CHECK], [
+  AX_PROG_PYTHON
   ax_prog_python_version=`${PYTHON} -c "import sys; sys.stdout.write('%d.%d' % (sys.version_info[[0]], sys.version_info[[1]]))" 2>/dev/null`;
-  AS_IF(
-    [test "x${PYTHON_CONFIG}" != x],
-    [dnl Check for Python includes
+  AS_IF([test "x${PYTHON_CONFIG}" != x], [
     PYTHON_INCLUDES=`${PYTHON_CONFIG} --includes 2>/dev/null`;
     AC_SUBST([PYTHON_INCLUDES])
 
@@ -77,8 +75,7 @@ AC_DEFUN([AX_PYTHON_CHECK],
     CPPFLAGS="${BACKUP_CPPFLAGS}"
   ])
 
-  AS_IF(
-    [test "x${ac_cv_header_python_h}" != xyes],
+  AS_IF([test "x${ac_cv_header_python_h}" != xyes],
     [ac_cv_enable_python=no],
     [ac_cv_enable_python=${ax_prog_python_version}
     
@@ -138,10 +135,11 @@ AC_DEFUN([AX_PYTHON_CHECK],
       [PYTHON_PACKAGE_DIR],
       [$ax_python_library_dir])
     ])
+
+    AC_DEFINE(HAVE_PYTHON,1,[Define if python was found])
   ])
 
-AC_DEFUN([AX_PYTHON_CHECK_ENABLE],
-  [
+AC_DEFUN([AX_PYTHON_CHECK_ENABLE], [
   AC_ARG_WITH([python],
               AS_HELP_STRING([--with-python],
                             [compile with python support (default is enabled)]),
@@ -150,8 +148,7 @@ AC_DEFUN([AX_PYTHON_CHECK_ENABLE],
     [test "x${ac_cv_enable_python}" != xno],
     [AX_PYTHON_CHECK])
 
-  AM_CONDITIONAL(HAS_PYTHON, [test "x${ac_cv_enable_python}" != xno])])
+  AM_CONDITIONAL(HAVE_PYTHON, [test "x${ac_cv_enable_python}" != xno])]
+)
 
-AC_DEFUN([SB_PYTHON], [
-AX_PYTHON_CHECK_ENABLE
-])
+AC_DEFUN([SB_PYTHON], [AX_PYTHON_CHECK_ENABLE])

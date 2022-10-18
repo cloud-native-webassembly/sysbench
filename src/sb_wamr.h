@@ -16,32 +16,13 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#ifndef SB_WASM_H
-#define SB_WASM_H
-
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
 
-#ifdef HAS_WAMR
-# include "sb_wamr.h"
-#endif
-
-#ifdef HAS_WASMEDGE
-# include "sb_wasmedge.h"
-#endif
-
-#ifdef HAS_WASMER
-# include "sb_wasmer.h"
-#endif
-
-#ifdef HAS_WASMTIME
-# include "sb_wasmtime.h"
-#endif
-
 #include "sysbench.h"
 
-sb_test_t *sb_load_wasm(const char *testname, const char *runtime, int argc, char *argv[]);
+sb_test_t *sb_load_wasm(const char *testname, int argc, char *argv[]);
 
 void sb_wasm_done(void);
 
@@ -52,5 +33,3 @@ int sb_wasm_report_thread_init(void);
 void sb_wasm_report_thread_done(void *);
 
 bool sb_wasm_loaded(void);
-
-#endif

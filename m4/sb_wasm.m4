@@ -55,6 +55,7 @@ AC_DEFUN([AX_CHECK_WAMR], [
           AC_SUBST([WAMR_CFLAGS])
           AC_SUBST([WAMR_LDFLAGS])
           AC_SUBST([WAMR_LIBS])
+          AC_DEFINE(HAVE_WAMR,1,[Define if wamr was found])
         ],
         [
           ac_cv_enable_wamr=no
@@ -63,7 +64,7 @@ AC_DEFUN([AX_CHECK_WAMR], [
       )
     ])
 
-  AM_CONDITIONAL(HAS_WAMR, [test "x${ac_cv_enable_wamr}" != xno])
+  AM_CONDITIONAL(HAVE_WAMR, [test "x${ac_cv_enable_wamr}" != xno])
 ])
 
 AC_DEFUN([AX_CHECK_WASMEDGE], [
@@ -103,6 +104,7 @@ AC_DEFUN([AX_CHECK_WASMEDGE], [
           AC_SUBST([WASMEDGE_CFLAGS])
           AC_SUBST([WASMEDGE_LDFLAGS])
           AC_SUBST([WASMEDGE_LIBS])
+          AC_DEFINE(HAVE_WASMEDGE,1,[Define if wasmedge was found])
         ],
         [
           ac_cv_enable_wasmedge=no
@@ -111,7 +113,7 @@ AC_DEFUN([AX_CHECK_WASMEDGE], [
       )
     ])
 
-  AM_CONDITIONAL(HAS_WASMEDGE, [test "x${ac_cv_enable_wasmedge}" != xno])
+  AM_CONDITIONAL(HAVE_WASMEDGE, [test "x${ac_cv_enable_wasmedge}" != xno])
 ])
 
 
@@ -152,6 +154,7 @@ AC_DEFUN([AX_CHECK_WASMER], [
           AC_SUBST([WASMER_CFLAGS])
           AC_SUBST([WASMER_LDFLAGS])
           AC_SUBST([WASMER_LIBS])
+          AC_DEFINE(HAVE_WASMER,1,[Define if wasmer was found])
         ],
         [
           ac_cv_enable_wasmer=no
@@ -160,7 +163,7 @@ AC_DEFUN([AX_CHECK_WASMER], [
       )
     ])
 
-  AM_CONDITIONAL(HAS_WASMER, [test "x${ac_cv_enable_wasmer}" != xno])
+  AM_CONDITIONAL(HAVE_WASMER, [test "x${ac_cv_enable_wasmer}" != xno])
 ])
 
 
@@ -201,6 +204,7 @@ AC_DEFUN([AX_CHECK_WASMTIME], [
           AC_SUBST([WASMTIME_CFLAGS])
           AC_SUBST([WASMTIME_LDFLAGS])
           AC_SUBST([WASMTIME_LIBS])
+          AC_DEFINE(HAVE_WASMTIME,1,[Define if wasmtime was found])
         ],
         [
           ac_cv_enable_wasmtime=no
@@ -209,7 +213,7 @@ AC_DEFUN([AX_CHECK_WASMTIME], [
       )
     ])
 
-  AM_CONDITIONAL(HAS_WASMTIME, [test "x${ac_cv_enable_wasmtime}" != xno])
+  AM_CONDITIONAL(HAVE_WASMTIME, [test "x${ac_cv_enable_wasmtime}" != xno])
 ])
 
 AC_DEFUN([SB_WASM], [

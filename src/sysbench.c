@@ -122,6 +122,7 @@ sb_arg_t general_args[] =
          "equivalent to 'luajit -j'. See LuaJIT documentation for more "
          "information", NULL, STRING),
   SB_OPT("type", "test type, could be 'lua','python','wasm' or 'builtin'", "builtin", STRING),
+  SB_OPT("wasm-runtime", "wasm runtime, could be 'wamr','wasmedge','wasmer' or 'wasmtime'", "wamr", STRING),
   SB_OPT_END
 };
 

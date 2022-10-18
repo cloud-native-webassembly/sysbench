@@ -33,36 +33,50 @@ endif
 sysbench_SOURCES = sysbench.c sysbench.h sb_timer.c sb_timer.h \
 sb_options.c sb_options.h sb_logger.c sb_logger.h sb_list.h db_driver.h \
 db_driver.c sb_histogram.c sb_histogram.h sb_rand.c sb_rand.h \
-sb_thread.c sb_thread.h sb_barrier.c sb_barrier.h sb_lua.c sb_python.c sb_python.h \
-sb_ck_pr.h sb_wasm.h \
+sb_thread.c sb_thread.h sb_barrier.c sb_barrier.h sb_lua.c \
+sb_ck_pr.h \
 sb_lua.h sb_util.h sb_util.c sb_counter.h sb_counter.c \
-python/sysbench.py.h \
 lua/internal/sysbench.lua.h lua/internal/sysbench.sql.lua.h \
 lua/internal/sysbench.rand.lua.h lua/internal/sysbench.cmdline.lua.h  \
 lua/internal/sysbench.histogram.lua.h \
 xoroshiro128plus.h
 
-if HAS_WAMR
-sysbench_SOURCES += sb_wamr.c
-endif
-
-if HAS_WASMEDGE
-sysbench_SOURCES += sb_wasmedge.c
-endif
-
-if HAS_WASMER
-sysbench_SOURCES += sb_wasmer.c
-endif
-
-if HAS_WASMTIME
-sysbench_SOURCES += sb_wasmtime.c
-endif
-
 sysbench_LDADD = tests/fileio/libsbfileio.a tests/threads/libsbthreads.a \
     tests/memory/libsbmemory.a tests/cpu/libsbcpu.a \
     tests/mutex/libsbmutex.a \
     $(mysql_ldadd) $(pgsql_ldadd) \
-    $(LUAJIT_LIBS) $(CK_LIBS) $(PYTHON_LIBS) $(WASM_LIBS)
+    $(LUAJIT_LIBS) $(CK_LIBS)
 
-sysbench_LDFLAGS = $(mysql_ldflags) \
-    $(pgsql_ldflags) $(LUAJIT_LDFLAGS) $(PYTHON_LDFLAGS) $(WASM_LDFLAGS)
+sysbench_LDFLAGS = $(mysql_ldflags) $(pgsql_ldflags) $(LUAJIT_LDFLAGS)  
+
+if HAVE_PYTHON
+sysbench_SOURCES += sb_python.c sb_python.h python/sysbench.py.h
+sysbench_LDADD   += $(PYTHON_LIBS)
+sysbench_LDFLAGS += $(PYTHON_LDFLAGS)
+endif 
+
+if HAVE_WAMR
+sysbench_SOURCES += sb_wamr.c sb_wamr.h
+sysbench_LDADD   += $(WAMR_LIBS)
+sysbench_LDFLAGS += $(WAMR_LDFLAGS)
+endif
+
+if HAVE_WASMEDGE
+sysbench_SOURCES += sb_wasmedge.c sb_wasmedge.h
+sysbench_LDADD   += $(WASMEDGE_LIBS)
+sysbench_LDFLAGS += $(WASMEDGE_LDFLAGS)
+endif
+
+if HAVE_WASMER
+sysbench_SOURCES += sb_wasmer.c sb_wasmer.h
+sysbench_LDADD   += $(WASMER_LIBS)
+sysbench_LDFLAGS += $(WASMER_LDFLAGS)
+endif
+
+if HAVE_WASMTIME
+sysbench_SOURCES += sb_wasmtime.c sb_wasmtime.h
+sysbench_LDADD   += $(WASMTIME_LIBS)
+sysbench_LDFLAGS += $(WASMTIME_LDFLAGS)
+endif
+
+
