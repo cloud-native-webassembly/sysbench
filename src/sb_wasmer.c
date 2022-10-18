@@ -19,19 +19,20 @@
 #include "config.h"
 #endif
 
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
+
 #include "wasmer.h"
 
 #ifdef HAVE_LIBGEN_H
 #include <libgen.h>
 #endif
 
-#include "sb_wasmer.h"
 #include "db_driver.h"
+#include "sb_ck_pr.h"
 #include "sb_rand.h"
 #include "sb_thread.h"
-#include "sb_ck_pr.h"
+#include "sb_wasmer.h"
 
 #define SB_LUA_EXPORT
 #include "sb_counter.h"
@@ -76,8 +77,7 @@ typedef struct
   size_t *source_len;
 } internal_script_t;
 
-typedef enum
-{
+typedef enum {
   SB_WASMER_ERROR_NONE,
   SB_WASMER_ERROR_RESTART_EVENT
 } sb_wasmer_error_t;
@@ -130,19 +130,16 @@ static wasmer_instance_t *sb_wasmer_new_module(void);
 /* Close interpretet state */
 static int sb_wasmer_free_module(wasmer_instance_t *);
 
-static void call_error(wasmer_instance_t *instance, const char *name)
-{
+static void call_error(wasmer_instance_t *instance, const char *name) {
   log_text(LOG_FATAL, "[%s] function failed in module", name);
 }
 
-static bool func_available(wasmer_instance_t *instance, const char *func)
-{
+static bool func_available(wasmer_instance_t *instance, const char *func) {
   // TODO check function
   return false;
 }
 
-static int wasmer_call_function(wasmer_instance_t *instance, const char *fname, int thread_id)
-{
+static int wasmer_call_function(wasmer_instance_t *instance, const char *fname, int thread_id) {
   wasmer_value_t arg1;
   arg1.tag = WASM_I32;
   arg1.value.I32 = 20;
@@ -150,23 +147,18 @@ static int wasmer_call_function(wasmer_instance_t *instance, const char *fname, 
   wasmer_value_t res1;
   wasmer_value_t results[] = {res1};
   wasmer_result_t call_result = wasmer_instance_call(instance, fname, args, 1, results, 1);
-  if (call_result == WASMER_OK)
-  {
+  if (call_result == WASMER_OK) {
     return 0;
-  }
-  else
-  {
+  } else {
     return 1;
   }
 }
 
-static int do_export_options(wasmer_instance_t *instance, bool global)
-{
+static int do_export_options(wasmer_instance_t *instance, bool global) {
   return 0;
 }
 
-static int export_options(wasmer_instance_t *instance)
-{
+static int export_options(wasmer_instance_t *instance) {
   if (do_export_options(instance, false))
     return 1;
 
@@ -176,16 +168,12 @@ static int export_options(wasmer_instance_t *instance)
 uint8_t *wasm_bytes;
 long wasm_len;
 
-sb_test_t *sb_load_wasm(const char *testname, int argc, char *argv[])
-{
-  if (testname != NULL)
-  {
+sb_test_t *sb_load_wasm(const char *testname, int argc, char *argv[]) {
+  if (testname != NULL) {
     char *tmp = strdup(testname);
     sbtest.sname = strdup(basename(tmp));
     sbtest.lname = tmp;
-  }
-  else
-  {
+  } else {
     log_text(LOG_FATAL, "no wasm name provided");
     goto error;
   }
@@ -214,8 +202,7 @@ sb_test_t *sb_load_wasm(const char *testname, int argc, char *argv[])
   if (func_available(vm_context, THREAD_RUN_FUNC))
     sbtest.ops.thread_run = &sb_wasmer_op_thread_run;
 
-  if (sb_globals.threads != 1)
-  {
+  if (sb_globals.threads != 1) {
     log_text(LOG_FATAL, "wasmer script %s only support a single thread", sbtest.sname);
     goto error;
   }
@@ -233,14 +220,11 @@ error:
   return NULL;
 }
 
-void sb_wasmer_done(void)
-{
+void sb_wasmer_done(void) {
   xfree(instances);
 
-  if (sbtest.args != NULL)
-  {
-    for (size_t i = 0; sbtest.args[i].name != NULL; i++)
-    {
+  if (sbtest.args != NULL) {
+    for (size_t i = 0; sbtest.args[i].name != NULL; i++) {
       xfree(sbtest.args[i].name);
       xfree(sbtest.args[i].desc);
       xfree(sbtest.args[i].value);
@@ -253,15 +237,12 @@ void sb_wasmer_done(void)
   xfree(sbtest.lname);
 }
 
-int sb_wasmer_op_init(void)
-{
+int sb_wasmer_op_init(void) {
   if (export_options(vm_context))
     return 1;
 
-  if (func_available(vm_context, INIT_FUNC))
-  {
-    if (wasmer_call_function(vm_context, INIT_FUNC, -1))
-    {
+  if (func_available(vm_context, INIT_FUNC)) {
+    if (wasmer_call_function(vm_context, INIT_FUNC, -1)) {
       call_error(vm_context, INIT_FUNC);
       return 1;
     }
@@ -270,8 +251,7 @@ int sb_wasmer_op_init(void)
   return 0;
 }
 
-int sb_wasmer_op_thread_init(int thread_id)
-{
+int sb_wasmer_op_thread_init(int thread_id) {
   wasmer_instance_t *instance = sb_wasmer_new_module();
   if (instance == NULL)
     return 1;
@@ -281,10 +261,8 @@ int sb_wasmer_op_thread_init(int thread_id)
   if (export_options(instance))
     return 1;
 
-  if (func_available(instance, THREAD_INIT_FUNC))
-  {
-    if (wasmer_call_function(instance, THREAD_INIT_FUNC, thread_id))
-    {
+  if (func_available(instance, THREAD_INIT_FUNC)) {
+    if (wasmer_call_function(instance, THREAD_INIT_FUNC, thread_id)) {
       call_error(instance, THREAD_INIT_FUNC);
       return 1;
     }
@@ -293,14 +271,11 @@ int sb_wasmer_op_thread_init(int thread_id)
   return 0;
 }
 
-int sb_wasmer_op_thread_run(int thread_id)
-{
+int sb_wasmer_op_thread_run(int thread_id) {
   wasmer_instance_t *const instance = instances[thread_id];
 
-  if (func_available(instance, THREAD_RUN_FUNC))
-  {
-    if (wasmer_call_function(instance, THREAD_RUN_FUNC, thread_id))
-    {
+  if (func_available(instance, THREAD_RUN_FUNC)) {
+    if (wasmer_call_function(instance, THREAD_RUN_FUNC, thread_id)) {
       call_error(instance, THREAD_RUN_FUNC);
       return 1;
     }
@@ -309,13 +284,10 @@ int sb_wasmer_op_thread_run(int thread_id)
   return 0;
 }
 
-int sb_wasmer_op_thread_done(int thread_id)
-{
+int sb_wasmer_op_thread_done(int thread_id) {
   wasmer_instance_t *const instance = instances[thread_id];
-  if (func_available(instance, THREAD_RUN_FUNC))
-  {
-    if (wasmer_call_function(instance, THREAD_RUN_FUNC, thread_id))
-    {
+  if (func_available(instance, THREAD_RUN_FUNC)) {
+    if (wasmer_call_function(instance, THREAD_RUN_FUNC, thread_id)) {
       call_error(instance, THREAD_RUN_FUNC);
       return 1;
     }
@@ -325,12 +297,9 @@ int sb_wasmer_op_thread_done(int thread_id)
   return 0;
 }
 
-int sb_wasmer_op_done(void)
-{
-  if (func_available(vm_context, DONE_FUNC))
-  {
-    if (wasmer_call_function(vm_context, DONE_FUNC, -1))
-    {
+int sb_wasmer_op_done(void) {
+  if (func_available(vm_context, DONE_FUNC)) {
+    if (wasmer_call_function(vm_context, DONE_FUNC, -1)) {
       call_error(vm_context, DONE_FUNC);
       return 1;
     }
@@ -340,8 +309,7 @@ int sb_wasmer_op_done(void)
   return 0;
 }
 
-inline sb_event_t sb_wasmer_op_next_event(int thread_id)
-{
+inline sb_event_t sb_wasmer_op_next_event(int thread_id) {
   sb_event_t req;
 
   (void)thread_id; /* unused */
@@ -351,23 +319,19 @@ inline sb_event_t sb_wasmer_op_next_event(int thread_id)
   return req;
 }
 
-int sb_wasmer_op_execute_event(sb_event_t *r, int thread_id)
-{
+int sb_wasmer_op_execute_event(sb_event_t *r, int thread_id) {
   wasmer_instance_t *const instance = instances[thread_id];
-  if (wasmer_call_function(instance, EVENT_FUNC, thread_id))
-  {
+  if (wasmer_call_function(instance, EVENT_FUNC, thread_id)) {
     call_error(instance, EVENT_FUNC);
     return 1;
   }
   return 0;
 }
 
-int sb_wasmer_set_test_args(sb_arg_t *args, size_t len)
-{
+int sb_wasmer_set_test_args(sb_arg_t *args, size_t len) {
   sbtest.args = malloc((len + 1) * sizeof(sb_arg_t));
 
-  for (size_t i = 0; i < len; i++)
-  {
+  for (size_t i = 0; i < len; i++) {
     sbtest.args[i].name = strdup(args[i].name);
     sbtest.args[i].desc = strdup(args[i].desc);
     sbtest.args[i].type = args[i].type;
@@ -381,8 +345,7 @@ int sb_wasmer_set_test_args(sb_arg_t *args, size_t len)
   return 0;
 }
 
-static wasmer_instance_t *sb_wasmer_new_module()
-{
+static wasmer_instance_t *sb_wasmer_new_module() {
   const char *name = sbtest.lname;
 
   wasmer_import_t imports[] = {};
@@ -392,26 +355,22 @@ static wasmer_instance_t *sb_wasmer_new_module()
   assert(instantiation_result == WASMER_OK);
 
   wasmer_instance_t *instance = WasmEdge_VMCreate(config_cxt, NULL);
-  if (instance == NULL)
-  {
+  if (instance == NULL) {
     log_text(LOG_FATAL, "can not import wasmer module: %s", name);
     goto error;
   }
   Res = WasmEdge_VMLoadWasmFromFile(instance, name);
-  if (!WasmEdge_ResultOK(Res))
-  {
+  if (!WasmEdge_ResultOK(Res)) {
     log_text(LOG_FATAL, "load wasm from file failed: %s", name);
     goto error;
   }
   Res = WasmEdge_VMValidate(instance);
-  if (!WasmEdge_ResultOK(Res))
-  {
+  if (!WasmEdge_ResultOK(Res)) {
     printf("validation wasm module failed: %s\n", WasmEdge_ResultGetMessage(Res));
     goto error;
   }
   Res = WasmEdge_VMInstantiate(instance);
-  if (!WasmEdge_ResultOK(Res))
-  {
+  if (!WasmEdge_ResultOK(Res)) {
     printf("instantiation wasm module failed: %s\n", WasmEdge_ResultGetMessage(Res));
     goto error;
   }
@@ -423,47 +382,40 @@ error:
 
 /* Close interpreter state */
 
-int sb_wasmer_free_module(wasmer_instance_t *instance)
-{
+int sb_wasmer_free_module(wasmer_instance_t *instance) {
   return 0;
 }
 
 /* Execute a given command */
-static int execute_command(const char *cmd)
-{
+static int execute_command(const char *cmd) {
   return 0;
 }
 
 /* Prepare command */
 
-int sb_wasmer_cmd_prepare(void)
-{
+int sb_wasmer_cmd_prepare(void) {
   return execute_command(PREPARE_FUNC);
 }
 
 /* Cleanup command */
 
-int sb_wasmer_cmd_cleanup(void)
-{
+int sb_wasmer_cmd_cleanup(void) {
   return execute_command(CLEANUP_FUNC);
 }
 
 /* Help command */
 
-int sb_wasmer_cmd_help(void)
-{
+int sb_wasmer_cmd_help(void) {
   return execute_command(HELP_FUNC);
 }
 
 /* Check if a specified hook exists */
 
-bool sb_wasmer_loaded(void)
-{
+bool sb_wasmer_loaded(void) {
   return vm_context != NULL;
 }
 
-static void *cmd_worker_thread(void *arg)
-{
+static void *cmd_worker_thread(void *arg) {
   sb_thread_ctxt_t *ctxt = (sb_thread_ctxt_t *)arg;
 
   sb_tls_thread_id = ctxt->id;
@@ -473,8 +425,7 @@ static void *cmd_worker_thread(void *arg)
 
   wasmer_instance_t *const instance = sb_wasmer_new_module();
 
-  if (instance == NULL)
-  {
+  if (instance == NULL) {
     log_text(LOG_FATAL, "failed to create a thread to execute command");
     return NULL;
   }
@@ -484,10 +435,8 @@ static void *cmd_worker_thread(void *arg)
   return NULL;
 }
 
-int sb_wasmer_report_thread_init(void)
-{
-  if (tls_wasmer_ctxt.instance == NULL)
-  {
+int sb_wasmer_report_thread_init(void) {
+  if (tls_wasmer_ctxt.instance == NULL) {
     sb_wasmer_new_module();
     export_options(tls_wasmer_ctxt.instance);
   }
@@ -495,8 +444,7 @@ int sb_wasmer_report_thread_init(void)
   return 0;
 }
 
-void sb_wasmer_report_thread_done(void *arg)
-{
+void sb_wasmer_report_thread_done(void *arg) {
   (void)arg; /* unused */
 
   if (sb_wasmer_loaded())

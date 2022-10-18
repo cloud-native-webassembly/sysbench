@@ -19,8 +19,9 @@
 #include "config.h"
 #endif
 
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
+
 #include "sb_wamr.h"
 #include "wasm_c_api.h"
 #include "wasm_export.h"
@@ -30,9 +31,9 @@
 #endif
 
 #include "db_driver.h"
+#include "sb_ck_pr.h"
 #include "sb_rand.h"
 #include "sb_thread.h"
-#include "sb_ck_pr.h"
 
 #define SB_LUA_EXPORT
 #include "sb_counter.h"
@@ -69,8 +70,7 @@ typedef struct
   char is_null;
 } sb_wamr_bind_t;
 
-typedef enum
-{
+typedef enum {
   SB_wamr_ERROR_NONE,
   SB_wamr_ERROR_RESTART_EVENT
 } sb_wamr_error_t;
@@ -83,9 +83,6 @@ static wasm_module_inst_t **instances CK_CC_CACHELINE;
 static sb_test_t sbtest CK_CC_CACHELINE;
 static TLS sb_wamr_ctxt_t tls_wamr_ctxt CK_CC_CACHELINE;
 
-/* List of pre-loaded internal scripts */
-static internal_script_t internal_scripts[] = {
-    {NULL, NULL, 0}};
 
 static WasmEdge_ConfigureContext *config_cxt;
 static wamr_instance_t *vm_context;
@@ -121,19 +118,16 @@ static wamr_instance_t *sb_wamr_new_module(void);
 /* Close interpretet state */
 static int sb_wamr_free_module(wamr_instance_t *);
 
-static void call_error(wamr_instance_t *instance, const char *name)
-{
+static void call_error(wamr_instance_t *instance, const char *name) {
   log_text(LOG_FATAL, "[%s] function failed in module", name);
 }
 
-static bool func_available(wamr_instance_t *instance, const char *func)
-{
+static bool func_available(wamr_instance_t *instance, const char *func) {
   // TODO check function
   return false;
 }
 
-static int wamr_call_function(wamr_instance_t *instance, const char *fname, int thread_id)
-{
+static int wamr_call_function(wamr_instance_t *instance, const char *fname, int thread_id) {
   wamr_value_t arg1;
   arg1.tag = WASM_I32;
   arg1.value.I32 = 20;
@@ -141,23 +135,18 @@ static int wamr_call_function(wamr_instance_t *instance, const char *fname, int 
   wamr_value_t res1;
   wamr_value_t results[] = {res1};
   wamr_result_t call_result = wamr_instance_call(instance, fname, args, 1, results, 1);
-  if (call_result == wamr_OK)
-  {
+  if (call_result == wamr_OK) {
     return 0;
-  }
-  else
-  {
+  } else {
     return 1;
   }
 }
 
-static int do_export_options(wamr_instance_t *instance, bool global)
-{
+static int do_export_options(wamr_instance_t *instance, bool global) {
   return 0;
 }
 
-static int export_options(wamr_instance_t *instance)
-{
+static int export_options(wamr_instance_t *instance) {
   if (do_export_options(instance, false))
     return 1;
 
@@ -167,16 +156,12 @@ static int export_options(wamr_instance_t *instance)
 uint8_t *wasm_bytes;
 long wasm_len;
 
-sb_test_t *sb_load_wamr(const char *testname, int argc, char *argv[])
-{
-  if (testname != NULL)
-  {
+sb_test_t *sb_load_wamr(const char *testname, int argc, char *argv[]) {
+  if (testname != NULL) {
     char *tmp = strdup(testname);
     sbtest.sname = strdup(basename(tmp));
     sbtest.lname = tmp;
-  }
-  else
-  {
+  } else {
     log_text(LOG_FATAL, "no wasm name provided");
     goto error;
   }
@@ -205,8 +190,7 @@ sb_test_t *sb_load_wamr(const char *testname, int argc, char *argv[])
   if (func_available(vm_context, THREAD_RUN_FUNC))
     sbtest.ops.thread_run = &sb_wamr_op_thread_run;
 
-  if (sb_globals.threads != 1)
-  {
+  if (sb_globals.threads != 1) {
     log_text(LOG_FATAL, "wamr script %s only support a single thread", sbtest.sname);
     goto error;
   }
@@ -224,14 +208,11 @@ error:
   return NULL;
 }
 
-void sb_wamr_done(void)
-{
+void sb_wamr_done(void) {
   xfree(instances);
 
-  if (sbtest.args != NULL)
-  {
-    for (size_t i = 0; sbtest.args[i].name != NULL; i++)
-    {
+  if (sbtest.args != NULL) {
+    for (size_t i = 0; sbtest.args[i].name != NULL; i++) {
       xfree(sbtest.args[i].name);
       xfree(sbtest.args[i].desc);
       xfree(sbtest.args[i].value);
@@ -244,15 +225,12 @@ void sb_wamr_done(void)
   xfree(sbtest.lname);
 }
 
-int sb_wamr_op_init(void)
-{
+int sb_wamr_op_init(void) {
   if (export_options(vm_context))
     return 1;
 
-  if (func_available(vm_context, INIT_FUNC))
-  {
-    if (wamr_call_function(vm_context, INIT_FUNC, -1))
-    {
+  if (func_available(vm_context, INIT_FUNC)) {
+    if (wamr_call_function(vm_context, INIT_FUNC, -1)) {
       call_error(vm_context, INIT_FUNC);
       return 1;
     }
@@ -261,8 +239,7 @@ int sb_wamr_op_init(void)
   return 0;
 }
 
-int sb_wamr_op_thread_init(int thread_id)
-{
+int sb_wamr_op_thread_init(int thread_id) {
   wamr_instance_t *instance = sb_wamr_new_module();
   if (instance == NULL)
     return 1;
@@ -272,10 +249,8 @@ int sb_wamr_op_thread_init(int thread_id)
   if (export_options(instance))
     return 1;
 
-  if (func_available(instance, THREAD_INIT_FUNC))
-  {
-    if (wamr_call_function(instance, THREAD_INIT_FUNC, thread_id))
-    {
+  if (func_available(instance, THREAD_INIT_FUNC)) {
+    if (wamr_call_function(instance, THREAD_INIT_FUNC, thread_id)) {
       call_error(instance, THREAD_INIT_FUNC);
       return 1;
     }
@@ -284,14 +259,11 @@ int sb_wamr_op_thread_init(int thread_id)
   return 0;
 }
 
-int sb_wamr_op_thread_run(int thread_id)
-{
+int sb_wamr_op_thread_run(int thread_id) {
   wamr_instance_t *const instance = instances[thread_id];
 
-  if (func_available(instance, THREAD_RUN_FUNC))
-  {
-    if (wamr_call_function(instance, THREAD_RUN_FUNC, thread_id))
-    {
+  if (func_available(instance, THREAD_RUN_FUNC)) {
+    if (wamr_call_function(instance, THREAD_RUN_FUNC, thread_id)) {
       call_error(instance, THREAD_RUN_FUNC);
       return 1;
     }
@@ -300,13 +272,10 @@ int sb_wamr_op_thread_run(int thread_id)
   return 0;
 }
 
-int sb_wamr_op_thread_done(int thread_id)
-{
+int sb_wamr_op_thread_done(int thread_id) {
   wamr_instance_t *const instance = instances[thread_id];
-  if (func_available(instance, THREAD_RUN_FUNC))
-  {
-    if (wamr_call_function(instance, THREAD_RUN_FUNC, thread_id))
-    {
+  if (func_available(instance, THREAD_RUN_FUNC)) {
+    if (wamr_call_function(instance, THREAD_RUN_FUNC, thread_id)) {
       call_error(instance, THREAD_RUN_FUNC);
       return 1;
     }
@@ -316,12 +285,9 @@ int sb_wamr_op_thread_done(int thread_id)
   return 0;
 }
 
-int sb_wamr_op_done(void)
-{
-  if (func_available(vm_context, DONE_FUNC))
-  {
-    if (wamr_call_function(vm_context, DONE_FUNC, -1))
-    {
+int sb_wamr_op_done(void) {
+  if (func_available(vm_context, DONE_FUNC)) {
+    if (wamr_call_function(vm_context, DONE_FUNC, -1)) {
       call_error(vm_context, DONE_FUNC);
       return 1;
     }
@@ -331,8 +297,7 @@ int sb_wamr_op_done(void)
   return 0;
 }
 
-inline sb_event_t sb_wamr_op_next_event(int thread_id)
-{
+inline sb_event_t sb_wamr_op_next_event(int thread_id) {
   sb_event_t req;
 
   (void)thread_id; /* unused */
@@ -342,23 +307,19 @@ inline sb_event_t sb_wamr_op_next_event(int thread_id)
   return req;
 }
 
-int sb_wamr_op_execute_event(sb_event_t *r, int thread_id)
-{
+int sb_wamr_op_execute_event(sb_event_t *r, int thread_id) {
   wamr_instance_t *const instance = instances[thread_id];
-  if (wamr_call_function(instance, EVENT_FUNC, thread_id))
-  {
+  if (wamr_call_function(instance, EVENT_FUNC, thread_id)) {
     call_error(instance, EVENT_FUNC);
     return 1;
   }
   return 0;
 }
 
-int sb_wamr_set_test_args(sb_arg_t *args, size_t len)
-{
+int sb_wamr_set_test_args(sb_arg_t *args, size_t len) {
   sbtest.args = malloc((len + 1) * sizeof(sb_arg_t));
 
-  for (size_t i = 0; i < len; i++)
-  {
+  for (size_t i = 0; i < len; i++) {
     sbtest.args[i].name = strdup(args[i].name);
     sbtest.args[i].desc = strdup(args[i].desc);
     sbtest.args[i].type = args[i].type;
@@ -372,8 +333,7 @@ int sb_wamr_set_test_args(sb_arg_t *args, size_t len)
   return 0;
 }
 
-static wamr_instance_t *sb_wamr_new_module()
-{
+static wamr_instance_t *sb_wamr_new_module() {
   const char *name = sbtest.lname;
 
   wamr_import_t imports[] = {};
@@ -383,26 +343,22 @@ static wamr_instance_t *sb_wamr_new_module()
   assert(instantiation_result == wamr_OK);
 
   wamr_instance_t *instance = WasmEdge_VMCreate(config_cxt, NULL);
-  if (instance == NULL)
-  {
+  if (instance == NULL) {
     log_text(LOG_FATAL, "can not import wamr module: %s", name);
     goto error;
   }
   Res = WasmEdge_VMLoadWasmFromFile(instance, name);
-  if (!WasmEdge_ResultOK(Res))
-  {
+  if (!WasmEdge_ResultOK(Res)) {
     log_text(LOG_FATAL, "load wasm from file failed: %s", name);
     goto error;
   }
   Res = WasmEdge_VMValidate(instance);
-  if (!WasmEdge_ResultOK(Res))
-  {
+  if (!WasmEdge_ResultOK(Res)) {
     printf("validation wasm module failed: %s\n", WasmEdge_ResultGetMessage(Res));
     goto error;
   }
   Res = WasmEdge_VMInstantiate(instance);
-  if (!WasmEdge_ResultOK(Res))
-  {
+  if (!WasmEdge_ResultOK(Res)) {
     printf("instantiation wasm module failed: %s\n", WasmEdge_ResultGetMessage(Res));
     goto error;
   }
@@ -414,47 +370,40 @@ error:
 
 /* Close interpreter state */
 
-int sb_wamr_free_module(wamr_instance_t *instance)
-{
+int sb_wamr_free_module(wamr_instance_t *instance) {
   return 0;
 }
 
 /* Execute a given command */
-static int execute_command(const char *cmd)
-{
+static int execute_command(const char *cmd) {
   return 0;
 }
 
 /* Prepare command */
 
-int sb_wamr_cmd_prepare(void)
-{
+int sb_wamr_cmd_prepare(void) {
   return execute_command(PREPARE_FUNC);
 }
 
 /* Cleanup command */
 
-int sb_wamr_cmd_cleanup(void)
-{
+int sb_wamr_cmd_cleanup(void) {
   return execute_command(CLEANUP_FUNC);
 }
 
 /* Help command */
 
-int sb_wamr_cmd_help(void)
-{
+int sb_wamr_cmd_help(void) {
   return execute_command(HELP_FUNC);
 }
 
 /* Check if a specified hook exists */
 
-bool sb_wamr_loaded(void)
-{
+bool sb_wamr_loaded(void) {
   return vm_context != NULL;
 }
 
-static void *cmd_worker_thread(void *arg)
-{
+static void *cmd_worker_thread(void *arg) {
   sb_thread_ctxt_t *ctxt = (sb_thread_ctxt_t *)arg;
 
   sb_tls_thread_id = ctxt->id;
@@ -464,8 +413,7 @@ static void *cmd_worker_thread(void *arg)
 
   wamr_instance_t *const instance = sb_wamr_new_module();
 
-  if (instance == NULL)
-  {
+  if (instance == NULL) {
     log_text(LOG_FATAL, "failed to create a thread to execute command");
     return NULL;
   }
@@ -475,10 +423,8 @@ static void *cmd_worker_thread(void *arg)
   return NULL;
 }
 
-int sb_wamr_report_thread_init(void)
-{
-  if (tls_wamr_ctxt.instance == NULL)
-  {
+int sb_wamr_report_thread_init(void) {
+  if (tls_wamr_ctxt.instance == NULL) {
     sb_wamr_new_module();
     export_options(tls_wamr_ctxt.instance);
   }
@@ -486,8 +432,7 @@ int sb_wamr_report_thread_init(void)
   return 0;
 }
 
-void sb_wamr_report_thread_done(void *arg)
-{
+void sb_wamr_report_thread_done(void *arg) {
   (void)arg; /* unused */
 
   if (sb_wamr_loaded())
