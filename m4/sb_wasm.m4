@@ -17,88 +17,204 @@
 # ---------------------------------------------------------------------------
 # Macro: SB_WASM
 # ---------------------------------------------------------------------------
-# modified https://github.com/libyal/libsmraw/blob/main/m4/python.m4
 
-AC_DEFUN([AX_PROG_WASM],
-  [AS_IF(
-    [test "x${WASM_HOME}" != x],
-    [
-      ax_wasm_progs="wasmedge wasmtime wasmer"
-      AC_CHECK_PROGS(
-        [WASM],
-        [$ax_wasm_progs],
-        [Unknown],
-        [${WASM_HOME}/bin])
-    ],
-    [
-      ax_wasm_progs="wasmedge wasmtime wasmer"
-      AC_CHECK_PROGS(
-        [WASM],
-        [$ax_wasm_progs],
-        [Unknown])
-      WASM_HOME=$(readlink -f $(dirname $(dirname $(which $WASM))))
-    ])
-
-  AS_IF(
-    [test "x${WASM}" != x],
-    [AC_SUBST([WASM])],
-    [AC_MSG_ERROR(
-      [Unable to find wasm runtime])
-    ])
-  ])
-
-AC_DEFUN([AX_WASM_CHECK],
-  [AX_PROG_WASM
-  AS_CASE(
-      [$WASM],
-      [wasmer],[
-        WASM_CFLAGS="-I${WASM_HOME}/include"
-        WASM_LDFLAGS="-L${WASM_HOME}/lib"
-        WASM_LIBS="-lwasmer"
-        AC_SUBST([WASM_CFLAGS])
-        AC_SUBST([WASM_LDFLAGS])
-        AC_SUBST([WASM_LIBS])
-      ],
-      [wasmtime],[
-        WASM_CFLAGS="-I${WASM_HOME}/include"
-        WASM_LDFLAGS="-L${WASM_HOME}/lib -lpthread -ldl -lm"
-        WASM_LIBS="-lwasmtime"
-        AC_SUBST([WASM_CFLAGS])
-        AC_SUBST([WASM_LDFLAGS])
-        AC_SUBST([WASM_LIBS])
-      ],
-      [wasmedge],[
-        WASM_CFLAGS="-I${WASM_HOME}/include"
-        WASM_LDFLAGS="-L${WASM_HOME}/lib -lstdc++ -lgcc_s -pthread -ldl -lutil -lm"
-        WASM_LIBS="-lwasmedge_c"
-        AC_SUBST([WASM_CFLAGS])
-        AC_SUBST([WASM_LDFLAGS])
-        AC_SUBST([WASM_LIBS])
-      ],
-      [*],[
-        ac_cv_enable_wasm=no
-      ]
+AC_DEFUN([AX_CHECK_WAMR], [
+  AC_ARG_WITH(
+    [wamr],
+    AS_HELP_STRING([--with-wamr],[compile with wamr support (default is enabled)]),
+    [],
+    [ac_cv_enable_wamr=yes]
   )
-  AM_CONDITIONAL(USE_WASMER,[test "x${WASM}" = xwasmer])
-  AM_CONDITIONAL(USE_WASMTIME,[test "x${WASM}" = xwasmtime])
-  AM_CONDITIONAL(USE_WASMEDGE,[test "x${WASM}" = xwasmedge])
+  AS_IF(
+    [test "x${ac_cv_enable_wamr}" != xno],
+    [
+      AS_IF(
+        [test "x${WAMR_HOME}" != x],
+        [
+          ax_wamr_progs="iwasm"
+          AC_CHECK_PROGS([WAMR], [$ax_wamr_progs], [Unknown], [${WAMR_HOME}/bin])
+        ],
+        [
+          ax_wamr_progs="iwasm"
+          AC_CHECK_PROGS(
+            [WAMR],
+            [$ax_wamr_progs],
+            [Unknown])
+          WAMR_HOME=$(readlink -f $(dirname $(dirname $(which $WAMR))))
+        ]
+      )
+      
+      AS_IF(
+        [test "x${WAMR}" != x],
+        [
+          WAMR_CFLAGS="-I${WAMR_HOME}/include"
+          WAMR_LDFLAGS="-L${WAMR_HOME}/lib libvmlib.a"
+          WAMR_LIBS="-liwasm"
+          AC_SUBST([WAMR_HOME])
+          AC_SUBST([WAMR])
+          AC_SUBST([WAMR_CFLAGS])
+          AC_SUBST([WAMR_LDFLAGS])
+          AC_SUBST([WAMR_LIBS])
+        ],
+        [
+          ac_cv_enable_wamr=no
+          AC_MSG_ERROR([Unable to find wamr runtime])
+        ]
+      )
+    ])
+
+  AM_CONDITIONAL(HAS_WAMR, [test "x${ac_cv_enable_wamr}" != xno])
 ])
 
-AC_DEFUN([AX_WASM_CHECK_ENABLE],
-  [
-  AC_ARG_WITH([wasm],
-              AS_HELP_STRING([--with-wasm],
-                            [compile with wasm support (default is enabled)]),
-              [], [ac_cv_enable_wasm=yes])
+AC_DEFUN([AX_CHECK_WASMEDGE], [
+  AC_ARG_WITH(
+    [wasmedge],
+    AS_HELP_STRING([--with-wasmedge],[compile with wasmedge support (default is enabled)]),
+    [],
+    [ac_cv_enable_wasmedge=yes]
+  )
   AS_IF(
-    [test "x${ac_cv_enable_wasm}" != xno],
-    [AX_WASM_CHECK])
+    [test "x${ac_cv_enable_wasmedge}" != xno],
+    [
+      AS_IF(
+        [test "x${WASMEDGE_HOME}" != x],
+        [
+          ax_wasmedge_progs="wasmedge"
+          AC_CHECK_PROGS([WASMEDGE], [$ax_wasmedge_progs], [Unknown], [${WASMEDGE_HOME}/bin])
+        ],
+        [
+          ax_wasmedge_progs="wasmedge"
+          AC_CHECK_PROGS(
+            [WASMEDGE],
+            [$ax_wasmedge_progs],
+            [Unknown])
+          WASMEDGE_HOME=$(readlink -f $(dirname $(dirname $(which $WASMEDGE))))
+        ]
+      )
+      
+      AS_IF(
+        [test "x${WASMEDGE}" != x],
+        [
+          WASMEDGE_CFLAGS="-I${WASMEDGE_HOME}/include"
+          WASMEDGE_LDFLAGS="-L${WASMEDGE_HOME}/lib -lstdc++ -lgcc_s -pthread -ldl -lutil -lm"
+          WASMEDGE_LIBS="-lwasmedge_c"
+          AC_SUBST([WASMEDGE_HOME])
+          AC_SUBST([WASMEDGE])
+          AC_SUBST([WASMEDGE_CFLAGS])
+          AC_SUBST([WASMEDGE_LDFLAGS])
+          AC_SUBST([WASMEDGE_LIBS])
+        ],
+        [
+          ac_cv_enable_wasmedge=no
+          AC_MSG_ERROR([Unable to find wasmedge runtime])
+        ]
+      )
+    ])
 
-  AM_CONDITIONAL(
-    HAVE_WASM,
-    [test "x${ac_cv_enable_wasm}" != xno])
-  ])
+  AM_CONDITIONAL(HAS_WASMEDGE, [test "x${ac_cv_enable_wasmedge}" != xno])
+])
+
+
+AC_DEFUN([AX_CHECK_WASMER], [
+  AC_ARG_WITH(
+    [wasmer],
+    AS_HELP_STRING([--with-wasmer],[compile with wasmer support (default is enabled)]),
+    [],
+    [ac_cv_enable_wasmer=yes]
+  )
+  AS_IF(
+    [test "x${ac_cv_enable_wasmer}" != xno],
+    [
+      AS_IF(
+        [test "x${WASMER_HOME}" != x],
+        [
+          ax_wasmer_progs="wasmer"
+          AC_CHECK_PROGS([WASMER], [$ax_wasmer_progs], [Unknown], [${WASMER_HOME}/bin])
+        ],
+        [
+          ax_wasmer_progs="wasmer"
+          AC_CHECK_PROGS(
+            [WASMER],
+            [$ax_wasmer_progs],
+            [Unknown])
+          WASMER_HOME=$(readlink -f $(dirname $(dirname $(which $WASMER))))
+        ]
+      )
+      
+      AS_IF(
+        [test "x${WASMER}" != x],
+        [
+          WASMER_CFLAGS="-I${WASMER_HOME}/include"
+          WASMER_LDFLAGS="-L${WASMER_HOME}/lib"
+          WASMER_LIBS="-lwasmer"
+          AC_SUBST([WASMER_HOME])
+          AC_SUBST([WASMER])
+          AC_SUBST([WASMER_CFLAGS])
+          AC_SUBST([WASMER_LDFLAGS])
+          AC_SUBST([WASMER_LIBS])
+        ],
+        [
+          ac_cv_enable_wasmer=no
+          AC_MSG_ERROR([Unable to find wasmer runtime])
+        ]
+      )
+    ])
+
+  AM_CONDITIONAL(HAS_WASMER, [test "x${ac_cv_enable_wasmer}" != xno])
+])
+
+
+AC_DEFUN([AX_CHECK_WASMTIME], [
+  AC_ARG_WITH(
+    [wasmtime],
+    AS_HELP_STRING([--with-wasmtime],[compile with wasmtime support (default is enabled)]),
+    [],
+    [ac_cv_enable_wasmtime=yes]
+  )
+  AS_IF(
+    [test "x${ac_cv_enable_wasmtime}" != xno],
+    [
+      AS_IF(
+        [test "x${WASMTIME_HOME}" != x],
+        [
+          ax_wasmtime_progs="wasmtime"
+          AC_CHECK_PROGS([WASMTIME], [$ax_wasmtime_progs], [Unknown], [${WASMTIME_HOME}/bin])
+        ],
+        [
+          ax_wasmtime_progs="wasmtime"
+          AC_CHECK_PROGS(
+            [WASMTIME],
+            [$ax_wasmtime_progs],
+            [Unknown])
+          WASMTIME_HOME=$(readlink -f $(dirname $(dirname $(which $WASMTIME))))
+        ]
+      )
+
+      AS_IF(
+        [test "x${WASMTIME}" != x],
+        [
+          WASMTIME_CFLAGS="-I${WASMTIME_HOME}/include"
+          WASMTIME_LDFLAGS="-L${WASMTIME_HOME}/lib -lpthread -ldl -lm"
+          WASMTIME_LIBS="-lwasmtime"
+          AC_SUBST([WAMR_HOME])
+          AC_SUBST([WASMTIME])
+          AC_SUBST([WASMTIME_CFLAGS])
+          AC_SUBST([WASMTIME_LDFLAGS])
+          AC_SUBST([WASMTIME_LIBS])
+        ],
+        [
+          ac_cv_enable_wasmtime=no
+          AC_MSG_ERROR([Unable to find wasmtime runtime])
+        ]
+      )
+    ])
+
+  AM_CONDITIONAL(HAS_WASMTIME, [test "x${ac_cv_enable_wasmtime}" != xno])
+])
 
 AC_DEFUN([SB_WASM], [
-AX_WASM_CHECK_ENABLE
+   AX_CHECK_WAMR
+   AX_CHECK_WASMEDGE
+   AX_CHECK_WASMER
+   AX_CHECK_WASMTIME
 ])
