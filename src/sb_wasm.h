@@ -23,19 +23,19 @@
 # include "config.h"
 #endif
 
-#ifdef HAS_WAMR
+#ifdef HAVE_WAMR
 # include "sb_wamr.h"
 #endif
 
-#ifdef HAS_WASMEDGE
+#ifdef HAVE_WASMEDGE
 # include "sb_wasmedge.h"
 #endif
 
-#ifdef HAS_WASMER
+#ifdef HAVE_WASMER
 # include "sb_wasmer.h"
 #endif
 
-#ifdef HAS_WASMTIME
+#ifdef HAVE_WASMTIME
 # include "sb_wasmtime.h"
 #endif
 

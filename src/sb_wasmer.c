@@ -27,7 +27,7 @@
 #include <libgen.h>
 #endif
 
-#include "sb_wasm.h"
+#include "sb_wasmer.h"
 #include "db_driver.h"
 #include "sb_rand.h"
 #include "sb_thread.h"
@@ -37,7 +37,7 @@
 #include "sb_counter.h"
 #undef SB_LUA_EXPORT
 
-#define EVENT_FUNC "fib"
+#define EVENT_FUNC "event"
 #define PREPARE_FUNC "prepare"
 #define CLEANUP_FUNC "cleanup"
 #define HELP_FUNC "help"
@@ -228,12 +228,12 @@ sb_test_t *sb_load_wasm(const char *testname, int argc, char *argv[])
   return &sbtest;
 error:
 
-  sb_wasm_done();
+  sb_wasmer_done();
 
   return NULL;
 }
 
-void sb_wasm_done(void)
+void sb_wasmer_done(void)
 {
   xfree(instances);
 
@@ -335,7 +335,7 @@ int sb_wasmer_op_done(void)
       return 1;
     }
   }
-  sb_wasm_done();
+  sb_wasmer_done();
 
   return 0;
 }
@@ -457,7 +457,7 @@ int sb_wasmer_cmd_help(void)
 
 /* Check if a specified hook exists */
 
-bool sb_wasm_loaded(void)
+bool sb_wasmer_loaded(void)
 {
   return vm_context != NULL;
 }
@@ -484,7 +484,7 @@ static void *cmd_worker_thread(void *arg)
   return NULL;
 }
 
-int sb_wasm_report_thread_init(void)
+int sb_wasmer_report_thread_init(void)
 {
   if (tls_wasmer_ctxt.instance == NULL)
   {
@@ -495,10 +495,10 @@ int sb_wasm_report_thread_init(void)
   return 0;
 }
 
-void sb_wasm_report_thread_done(void *arg)
+void sb_wasmer_report_thread_done(void *arg)
 {
   (void)arg; /* unused */
 
-  if (sb_wasm_loaded())
+  if (sb_wasmer_loaded())
     sb_wasmer_free_module(tls_wasmer_ctxt.instance);
 }

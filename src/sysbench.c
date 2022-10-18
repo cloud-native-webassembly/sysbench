@@ -1532,8 +1532,9 @@ int main(int argc, char *argv[])
 
     if (test == NULL && !strcmp(test_type, "wasm"))
     {
+      const char *wasm_runtime = sb_get_value_string("wasm-runtime");
       /* Is it a wasm test name? */
-      test = sb_load_wasm(sb_globals.testname, argc, argv);
+      test = sb_load_wasm(sb_globals.testname, wasm_runtime, argc, argv);
 
       if (test != NULL) 
       {
