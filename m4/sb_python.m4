@@ -20,23 +20,25 @@
 # modified https://github.com/libyal/libsmraw/blob/main/m4/python.m4
 
 AC_DEFUN([AX_PROG_PYTHON],
-  [AS_IF(
-    [test "x${PYTHON_HOME}" != x],
-    [
-      ax_python_progs="${PYTHON_HOME}/bin/python3";
-      ax_python_config="${PYTHON_HOME}/bin/python3-config"],
-    [
-      ax_python_progs="python3";
-      ax_python_config="python3-config"
-    ])
-  AC_SUBST(
-    [PYTHON],
-    [$ax_python_progs])
-  
-  AC_SUBST(
-    [PYTHON_CONFIG],
-    [$ax_python_config])
-  ])
+  [
+    ax_python_progs="python3";
+    ax_python_config="python3-config"
+    AS_IF(
+      [test "x${PYTHON_HOME}" != x],
+      [
+        AC_CHECK_PROGS([PYTHON], [$ax_python_progs], [Unknown], [${PYTHON_HOME}/bin])
+        AC_CHECK_PROGS([PYTHON_CONFIG], [$ax_python_config], [Unknown], [${PYTHON_HOME}/bin])
+      ],
+      [
+        AC_CHECK_PROGS([PYTHON], [$ax_python_progs], [Unknown])
+        PYTHON_HOME=$(readlink -f $(dirname $(dirname $(which $PYTHON))))
+        AC_CHECK_PROGS([PYTHON_CONFIG], [$ax_python_config], [Unknown])
+      ]
+    )
+    
+  AC_SUBST([PYTHON_HOME])
+  AC_SUBST([PYTHON], [$ax_python_progs])
+  AC_SUBST([PYTHON_CONFIG], [$ax_python_config])])
 
 AC_DEFUN([AX_PYTHON_CHECK],
   [AX_PROG_PYTHON
@@ -148,10 +150,7 @@ AC_DEFUN([AX_PYTHON_CHECK_ENABLE],
     [test "x${ac_cv_enable_python}" != xno],
     [AX_PYTHON_CHECK])
 
-  AM_CONDITIONAL(
-    HAVE_PYTHON,
-    [test "x${ac_cv_enable_python}" != xno])
-  ])
+  AM_CONDITIONAL(HAS_PYTHON, [test "x${ac_cv_enable_python}" != xno])])
 
 AC_DEFUN([SB_PYTHON], [
 AX_PYTHON_CHECK_ENABLE

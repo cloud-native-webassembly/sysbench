@@ -42,15 +42,19 @@ lua/internal/sysbench.rand.lua.h lua/internal/sysbench.cmdline.lua.h  \
 lua/internal/sysbench.histogram.lua.h \
 xoroshiro128plus.h
 
-if USE_WASMEDGE
+if HAS_WAMR
+sysbench_SOURCES += sb_wamr.c
+endif
+
+if HAS_WASMEDGE
 sysbench_SOURCES += sb_wasmedge.c
 endif
 
-if USE_WASMER
+if HAS_WASMER
 sysbench_SOURCES += sb_wasmer.c
 endif
 
-if USE_WASMTIME
+if HAS_WASMTIME
 sysbench_SOURCES += sb_wasmtime.c
 endif
 
