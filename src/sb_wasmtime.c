@@ -23,13 +23,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <wasm.h>
-#include <wasmtime.h>
 
 #ifdef HAVE_LIBGEN_H
 #include <libgen.h>
 #endif
 
-#include "sb_wasm.h"
+#include "sb_wasmtime.h"
 #include "db_driver.h"
 #include "sb_rand.h"
 #include "sb_thread.h"
@@ -39,7 +38,7 @@
 #include "sb_counter.h"
 #undef SB_LUA_EXPORT
 
-#define EVENT_FUNC "fib"
+#define EVENT_FUNC "event"
 #define PREPARE_FUNC "prepare"
 #define CLEANUP_FUNC "cleanup"
 #define HELP_FUNC "help"
@@ -171,7 +170,7 @@ static int export_options(wasmtime_context_t *context)
 
 /* Load a specified Lua script */
 
-sb_test_t *sb_load_wasm(const char *testname, int argc, char *argv[])
+sb_test_t *sb_load_wasmtime(const char *testname, int argc, char *argv[])
 {
   if (testname != NULL)
   {
@@ -216,12 +215,12 @@ sb_test_t *sb_load_wasm(const char *testname, int argc, char *argv[])
   return &sbtest;
 error:
 
-  sb_wasm_done();
+  sb_wasmtime_done();
 
   return NULL;
 }
 
-void sb_wasm_done(void)
+void sb_wasmtime_done(void)
 {
   xfree(contexts);
 
@@ -303,7 +302,7 @@ int sb_wasmedge_op_thread_done(int thread_id)
 
 int sb_wasmedge_op_done(void)
 {
-  sb_wasm_done();
+  sb_wasmtime_done();
 
   return 0;
 }
@@ -424,7 +423,7 @@ int sb_wasmedge_cmd_help(void)
 
 /* Check if a specified hook exists */
 
-bool sb_wasm_loaded(void)
+bool sb_wasmtime_loaded(void)
 {
   return true;
 }
@@ -451,7 +450,7 @@ static void *cmd_worker_thread(void *arg)
   return NULL;
 }
 
-int sb_wasm_report_thread_init(void)
+int sb_wasmtime_report_thread_init(void)
 {
   if (tls_wasmedge_ctxt.context == NULL)
   {
@@ -462,10 +461,10 @@ int sb_wasm_report_thread_init(void)
   return 0;
 }
 
-void sb_wasm_report_thread_done(void *arg)
+void sb_wasmtime_report_thread_done(void *arg)
 {
   (void)arg; /* unused */
 
-  if (sb_wasm_loaded())
+  if (sb_wasmtime_loaded())
     sb_wasmedge_free_module(tls_wasmedge_ctxt.context);
 }

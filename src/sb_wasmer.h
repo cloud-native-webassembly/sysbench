@@ -22,14 +22,14 @@
 
 #include "sysbench.h"
 
-sb_test_t *sb_load_wasm(const char *testname, int argc, char *argv[]);
+sb_test_t *sb_load_wasmer(const char *testname, int argc, char *argv[]);
 
-void sb_wasm_done(void);
+void sb_wasmer_done(void);
 
-bool sb_wasm_custom_command_defined(const char *name);
+bool sb_wasmer_custom_command_defined(const char *name);
 
-int sb_wasm_report_thread_init(void);
+int sb_wasmer_report_thread_init(void);
 
-void sb_wasm_report_thread_done(void *);
+void sb_wasmer_report_thread_done(void *);
 
-bool sb_wasm_loaded(void);
+bool sb_wasmer_loaded(void);
