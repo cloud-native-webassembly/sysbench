@@ -33,4 +33,3 @@ int sb_python_report_thread_init(void);
 void sb_python_report_thread_done(void *);
 
 bool sb_python_loaded(void);
-

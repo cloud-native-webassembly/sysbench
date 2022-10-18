@@ -94,6 +94,12 @@ static wasmtime_context_t **contexts CK_CC_CACHELINE;
 static sb_test_t sbtest CK_CC_CACHELINE;
 static TLS sb_wasmedge_ctxt_t tls_wasmedge_ctxt CK_CC_CACHELINE;
 
+/* List of pre-loaded internal scripts */
+static internal_script_t internal_scripts[] = {
+    {NULL, NULL, 0}};
+
+/* Lua test operations */
+
 static int sb_wasmedge_op_init(void);
 static int sb_wasmedge_op_done(void);
 static int sb_wasmedge_op_thread_init(int);
@@ -111,6 +117,11 @@ static sb_operations_t wasmedge_ops = {
     .report_intermediate = db_report_intermediate,
     .report_cumulative = db_report_cumulative,
     .done = sb_wasmedge_op_done};
+
+/* Lua test commands */
+static int sb_wasmedge_cmd_prepare(void);
+static int sb_wasmedge_cmd_cleanup(void);
+static int sb_wasmedge_cmd_help(void);
 
 /* Initialize interpreter state */
 static wasmtime_context_t *sb_wasmedge_new_module(void);
@@ -384,9 +395,60 @@ int sb_wasmedge_free_module(wasmtime_context_t *context)
   return 0;
 }
 
+/* Execute a given command */
+static int execute_command(const char *cmd)
+{
+  return 0;
+}
+
+/* Prepare command */
+
+int sb_wasmedge_cmd_prepare(void)
+{
+  return execute_command(PREPARE_FUNC);
+}
+
+/* Cleanup command */
+
+int sb_wasmedge_cmd_cleanup(void)
+{
+  return execute_command(CLEANUP_FUNC);
+}
+
+/* Help command */
+
+int sb_wasmedge_cmd_help(void)
+{
+  return execute_command(HELP_FUNC);
+}
+
+/* Check if a specified hook exists */
+
 bool sb_wasm_loaded(void)
 {
   return true;
+}
+
+static void *cmd_worker_thread(void *arg)
+{
+  sb_thread_ctxt_t *ctxt = (sb_thread_ctxt_t *)arg;
+
+  sb_tls_thread_id = ctxt->id;
+
+  /* Initialize thread-local RNG state */
+  sb_rand_thread_init();
+
+  wasmtime_context_t *const context = sb_wasmedge_new_module();
+
+  if (context == NULL)
+  {
+    log_text(LOG_FATAL, "failed to create a thread to execute command");
+    return NULL;
+  }
+
+  sb_wasmedge_free_module(context);
+
+  return NULL;
 }
 
 int sb_wasm_report_thread_init(void)
