@@ -90,20 +90,34 @@ static WasmEdge_VMContext **contexts CK_CC_CACHELINE;
 static sb_test_t sbtest CK_CC_CACHELINE;
 static TLS sb_wasmedge_ctxt_t tls_wasmedge_ctxt CK_CC_CACHELINE;
 
+/* List of pre-loaded internal scripts */
+static internal_script_t internal_scripts[] = {
+    {NULL, NULL, 0}};
+
+/* Lua test operations */
+
 static int sb_wasmedge_op_init(void);
 static int sb_wasmedge_op_done(void);
-static sb_event_t sb_wasmedge_op_next_event(int, sb_socket_buffer_t *, sb_file_buffer_t *);
+static int sb_wasmedge_op_thread_init(int);
+static int sb_wasmedge_op_thread_run(int);
+static int sb_wasmedge_op_thread_done(int);
+static sb_event_t sb_wasmedge_op_next_event(int);
 static int sb_wasmedge_op_execute_event(sb_event_t *event, int);
-static int sb_wasmedge_op_thread_init(int thread_id);
 
 static sb_operations_t wasmedge_ops = {
     .init = sb_wasmedge_op_init,
     .thread_init = sb_wasmedge_op_thread_init,
+    .thread_done = sb_wasmedge_op_thread_done,
     .next_event = sb_wasmedge_op_next_event,
     .execute_event = sb_wasmedge_op_execute_event,
     .report_intermediate = db_report_intermediate,
     .report_cumulative = db_report_cumulative,
     .done = sb_wasmedge_op_done};
+
+/* Lua test commands */
+static int sb_wasmedge_cmd_prepare(void);
+static int sb_wasmedge_cmd_cleanup(void);
+static int sb_wasmedge_cmd_help(void);
 
 /* Initialize interpreter state */
 static WasmEdge_VMContext *sb_wasmedge_new_module(void);
@@ -113,21 +127,17 @@ static int sb_wasmedge_free_module(WasmEdge_VMContext *);
 
 static void call_error(WasmEdge_VMContext *context, const char *name)
 {
-  (void)context;
   log_text(LOG_FATAL, "[%s] function failed in module", name);
 }
 
 static bool func_available(WasmEdge_VMContext *context, const char *func)
 {
   // TODO check function
-  (void)context;
-  (void)func;
   return false;
 }
 
 static int wasmedge_call_function(WasmEdge_VMContext *context, const char *fname, int thread_id)
 {
-  (void)thread_id;
   WasmEdge_Value params[1] = {WasmEdge_ValueGenI32(20)};
   WasmEdge_Value returns[1];
   WasmEdge_String func_name = WasmEdge_StringCreateByCString(fname);
@@ -146,17 +156,26 @@ static int wasmedge_call_function(WasmEdge_VMContext *context, const char *fname
   }
 }
 
+static int do_export_options(WasmEdge_VMContext *context, bool global)
+{
+  return 0;
+}
 
+static int export_options(WasmEdge_VMContext *context)
+{
+  if (do_export_options(context, false))
+    return 1;
 
-// /* Load a specified Lua script */
-// #define BUF_LEN 256
-// static WasmEdge_String FuncNames[BUF_LEN];
-// static WasmEdge_FunctionTypeContext *FuncTypes[BUF_LEN];
+  return 0;
+}
+
+/* Load a specified Lua script */
+#define BUF_LEN 256
+static WasmEdge_String FuncNames[BUF_LEN];
+static WasmEdge_FunctionTypeContext *FuncTypes[BUF_LEN];
 
 sb_test_t *sb_load_wasm(const char *testname, int argc, char *argv[])
 {
-  (void)argc;
-  (void)argv;
   if (testname != NULL)
   {
     char *tmp = strdup(testname);
@@ -169,25 +188,25 @@ sb_test_t *sb_load_wasm(const char *testname, int argc, char *argv[])
     goto error;
   }
 
-  // WasmEdge_StoreContext *StoreCxt = WasmEdge_StoreCreate();
-  // WasmEdge_VMContext *VMCxt = WasmEdge_VMCreate(NULL, StoreCxt);
+  WasmEdge_StoreContext *StoreCxt = WasmEdge_StoreCreate();
+  WasmEdge_VMContext *VMCxt = WasmEdge_VMCreate(NULL, StoreCxt);
 
-  // WasmEdge_VMLoadWasmFromFile(VMCxt, sbtest.lname);
-  // WasmEdge_VMValidate(VMCxt);
-  // WasmEdge_VMInstantiate(VMCxt);
+  WasmEdge_VMLoadWasmFromFile(VMCxt, sbtest.lname);
+  WasmEdge_VMValidate(VMCxt);
+  WasmEdge_VMInstantiate(VMCxt);
 
-  // uint32_t FuncNum = WasmEdge_VMGetFunctionListLength(VMCxt);
+  uint32_t FuncNum = WasmEdge_VMGetFunctionListLength(VMCxt);
 
-  // uint32_t RealFuncNum = WasmEdge_VMGetFunctionList(VMCxt, FuncNames, &FuncTypes, BUF_LEN);
-  // printf("There are %d function in module %s\n", RealFuncNum, sbtest.lname);
-  // for (uint32_t I = 0; I < RealFuncNum && I < BUF_LEN; I++)
-  // {
-  //   char Buf[BUF_LEN];
-  //   uint32_t Size = WasmEdge_StringCopy(FuncNames[I], Buf, sizeof(Buf));
-  //   printf("Get exported function string length: %u, name: %s\n", Size, Buf);
-  // }
-  // WasmEdge_VMDelete(VMCxt);
-  // WasmEdge_StoreDelete(StoreCxt);
+  uint32_t RealFuncNum = WasmEdge_VMGetFunctionList(VMCxt, FuncNames, &FuncTypes, BUF_LEN);
+  printf("There are %d function in module %s\n", RealFuncNum, sbtest.lname);
+  for (uint32_t I = 0; I < RealFuncNum && I < BUF_LEN; I++)
+  {
+    char Buf[BUF_LEN];
+    uint32_t Size = WasmEdge_StringCopy(FuncNames[I], Buf, sizeof(Buf));
+    printf("Get exported function string length: %u, name: %s\n", Size, Buf);
+  }
+  WasmEdge_VMDelete(VMCxt);
+  WasmEdge_StoreDelete(StoreCxt);
   /* Test operations */
   sbtest.ops = wasmedge_ops;
 
@@ -243,6 +262,9 @@ int sb_wasmedge_op_thread_init(int thread_id)
 
   contexts[thread_id] = context;
 
+  if (export_options(context))
+    return 1;
+
   if (func_available(context, THREAD_INIT_FUNC))
   {
     if (wasmedge_call_function(context, THREAD_INIT_FUNC, thread_id))
@@ -255,6 +277,38 @@ int sb_wasmedge_op_thread_init(int thread_id)
   return 0;
 }
 
+int sb_wasmedge_op_thread_run(int thread_id)
+{
+  WasmEdge_VMContext *const context = contexts[thread_id];
+
+  if (func_available(context, THREAD_RUN_FUNC))
+  {
+    if (wasmedge_call_function(context, THREAD_RUN_FUNC, thread_id))
+    {
+      call_error(context, THREAD_RUN_FUNC);
+      return 1;
+    }
+  }
+
+  return 0;
+}
+
+int sb_wasmedge_op_thread_done(int thread_id)
+{
+  WasmEdge_VMContext *const context = contexts[thread_id];
+  if (func_available(context, THREAD_RUN_FUNC))
+  {
+    if (wasmedge_call_function(context, THREAD_RUN_FUNC, thread_id))
+    {
+      call_error(context, THREAD_RUN_FUNC);
+      return 1;
+    }
+  }
+
+  sb_wasmedge_free_module(context);
+  return 0;
+}
+
 int sb_wasmedge_op_done(void)
 {
   sb_wasm_done();
@@ -262,22 +316,19 @@ int sb_wasmedge_op_done(void)
   return 0;
 }
 
-inline sb_event_t sb_wasmedge_op_next_event(int thread_id, sb_socket_buffer_t *socket_buffer, sb_file_buffer_t *file_buffer)
+inline sb_event_t sb_wasmedge_op_next_event(int thread_id)
 {
   sb_event_t req;
 
   (void)thread_id; /* unused */
-  (void)socket_buffer;
-  (void)file_buffer;
 
   req.type = SB_REQ_TYPE_SCRIPT;
 
   return req;
 }
 
-int sb_wasmedge_op_execute_event(sb_event_t *event, int thread_id)
+int sb_wasmedge_op_execute_event(sb_event_t *r, int thread_id)
 {
-  (void)event;
   WasmEdge_VMContext *const context = contexts[thread_id];
   if (wasmedge_call_function(context, EVENT_FUNC, thread_id))
   {
@@ -349,14 +400,74 @@ error:
 
 int sb_wasmedge_free_module(WasmEdge_VMContext *context)
 {
-  (void)context;
   return 0;
 }
 
+/* Execute a given command */
+static int execute_command(const char *cmd)
+{
+  return 0;
+}
+
+/* Prepare command */
+
+int sb_wasmedge_cmd_prepare(void)
+{
+  return execute_command(PREPARE_FUNC);
+}
+
+/* Cleanup command */
+
+int sb_wasmedge_cmd_cleanup(void)
+{
+  return execute_command(CLEANUP_FUNC);
+}
+
+/* Help command */
+
+int sb_wasmedge_cmd_help(void)
+{
+  return execute_command(HELP_FUNC);
+}
+
 /* Check if a specified hook exists */
+
 bool sb_wasm_loaded(void)
 {
   return true;
+}
+
+static void *cmd_worker_thread(void *arg)
+{
+  sb_thread_ctxt_t *ctxt = (sb_thread_ctxt_t *)arg;
+
+  sb_tls_thread_id = ctxt->id;
+
+  /* Initialize thread-local RNG state */
+  sb_rand_thread_init();
+
+  WasmEdge_VMContext *const context = sb_wasmedge_new_module();
+
+  if (context == NULL)
+  {
+    log_text(LOG_FATAL, "failed to create a thread to execute command");
+    return NULL;
+  }
+
+  sb_wasmedge_free_module(context);
+
+  return NULL;
+}
+
+int sb_wasm_report_thread_init(void)
+{
+  if (tls_wasmedge_ctxt.context == NULL)
+  {
+    sb_wasmedge_new_module();
+    export_options(tls_wasmedge_ctxt.context);
+  }
+
+  return 0;
 }
 
 void sb_wasm_report_thread_done(void *arg)

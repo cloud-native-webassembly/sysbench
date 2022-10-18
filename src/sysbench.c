@@ -17,51 +17,51 @@
 */
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+# include "config.h"
 #endif
 
 #ifdef STDC_HEADERS
-#include <stdio.h>
-#include <stdlib.h>
+# include <stdio.h>
+# include <stdlib.h>
 #endif
 
 #ifdef HAVE_STRING_H
-#include <string.h>
+# include <string.h>
 #endif
 #ifdef HAVE_STRINGS_H
-#include <strings.h>
+# include <strings.h>
 #endif
 
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#include <sys/types.h>
+#ifdef HAVE_UNISTD_H 
+# include <unistd.h>
+# include <sys/types.h>
 #endif
 #ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
+# include <sys/stat.h>
 #endif
 #ifdef HAVE_ERRNO_H
-#include <errno.h>
+# include <errno.h>
 #endif
 #ifdef HAVE_FCNTL_H
-#include <fcntl.h>
+# include <fcntl.h>
 #endif
 #ifdef HAVE_PTHREAD_H
-#include <pthread.h>
+# include <pthread.h>
 #endif
 #ifdef HAVE_THREAD_H
-#include <thread.h>
+# include <thread.h>
 #endif
 #ifdef HAVE_MATH_H
-#include <math.h>
+# include <math.h>
 #endif
 #ifdef HAVE_SCHED_H
-#include <sched.h>
+# include <sched.h>
 #endif
 #ifdef HAVE_SIGNAL_H
-#include <signal.h>
+# include <signal.h>
 #endif
 #ifdef HAVE_LIMITS_H
-#include <limits.h>
+# include <limits.h>
 #endif
 
 #include <luajit.h>
@@ -79,7 +79,7 @@
 #include "ck_cc.h"
 #include "ck_ring.h"
 
-#define VERSION_STRING PACKAGE " " PACKAGE_VERSION SB_GIT_SHA
+#define VERSION_STRING PACKAGE" "PACKAGE_VERSION SB_GIT_SHA
 
 /* Maximum queue length for the tx-rate mode. Must be a power of 2 */
 #define MAX_QUEUE_LEN 131072
@@ -92,56 +92,45 @@
 
 /* General options */
 sb_arg_t general_args[] =
-    {
-        SB_OPT("threads", "number of threads to use", "1", INT),
-        SB_OPT("events", "limit for total number of events", "0", INT),
-        SB_OPT("time", "limit for total execution time in seconds", "10", INT),
-        SB_OPT("warmup-time", "execute events for this many seconds with statistics "
-                              "disabled before the actual benchmark run with statistics enabled",
-               "0", INT),
-        SB_OPT("forced-shutdown",
-               "number of seconds to wait after the --time limit before forcing "
-               "shutdown, or 'off' to disable",
-               "off", STRING),
-        SB_OPT("thread-stack-size", "size of stack per thread", "64K", SIZE),
-        SB_OPT("thread-init-timeout", "wait time in seconds for worker threads to initialize", "30", INT),
-        SB_OPT("rate", "average transactions rate. 0 for unlimited rate", "0", INT),
-        SB_OPT("report-interval", "periodically report intermediate statistics with "
-                                  "a specified interval in seconds. 0 disables intermediate reports",
-               "0", INT),
-        SB_OPT("report-checkpoints", "dump full statistics and reset all counters at "
-                                     "specified points in time. The argument is a list of comma-separated "
-                                     "values representing the amount of time in seconds elapsed from start "
-                                     "of test when report checkpoint(s) must be performed. Report "
-                                     "checkpoints are off by default.",
-               "", LIST),
-        SB_OPT("debug", "print more debugging info", "off", BOOL),
-        SB_OPT("validate", "perform validation checks where possible", "off", BOOL),
-        SB_OPT("help", "print help and exit", "off", BOOL),
-        SB_OPT("version", "print version and exit", "off", BOOL),
-        SB_OPT("config-file", "File containing command line options", NULL, FILE),
-        SB_OPT("luajit-cmd", "perform LuaJIT control command. This option is "
-                             "equivalent to 'luajit -j'. See LuaJIT documentation for more "
-                             "information",
-               NULL, STRING),
-        SB_OPT("type", "test type, could be 'lua','python','wasm' or 'builtin'", "builtin", STRING),
-        SB_OPT("fork", "use fork to split data input and data process", "off", BOOL),
-        SB_OPT("input", "input file path for test", NULL, STRING),
-        SB_OPT("buffer-size", "buffer size for input", "1048576", INT),
-        SB_OPT_END};
+{
+  SB_OPT("threads", "number of threads to use", "1", INT),
+  SB_OPT("events", "limit for total number of events", "0", INT),
+  SB_OPT("time", "limit for total execution time in seconds", "10", INT),
+  SB_OPT("warmup-time", "execute events for this many seconds with statistics "
+         "disabled before the actual benchmark run with statistics enabled",
+         "0", INT),
+  SB_OPT("forced-shutdown",
+         "number of seconds to wait after the --time limit before forcing "
+         "shutdown, or 'off' to disable", "off", STRING),
+  SB_OPT("thread-stack-size", "size of stack per thread", "64K", SIZE),
+  SB_OPT("thread-init-timeout", "wait time in seconds for worker threads to initialize", "30", INT),
+  SB_OPT("rate", "average transactions rate. 0 for unlimited rate", "0", INT),
+  SB_OPT("report-interval", "periodically report intermediate statistics with "
+         "a specified interval in seconds. 0 disables intermediate reports",
+         "0", INT),
+  SB_OPT("report-checkpoints", "dump full statistics and reset all counters at "
+         "specified points in time. The argument is a list of comma-separated "
+         "values representing the amount of time in seconds elapsed from start "
+         "of test when report checkpoint(s) must be performed. Report "
+         "checkpoints are off by default.", "", LIST),
+  SB_OPT("debug", "print more debugging info", "off", BOOL),
+  SB_OPT("validate", "perform validation checks where possible", "off", BOOL),
+  SB_OPT("help", "print help and exit", "off", BOOL),
+  SB_OPT("version", "print version and exit", "off", BOOL),
+  SB_OPT("config-file", "File containing command line options", NULL, FILE),
+  SB_OPT("luajit-cmd", "perform LuaJIT control command. This option is "
+         "equivalent to 'luajit -j'. See LuaJIT documentation for more "
+         "information", NULL, STRING),
+  SB_OPT("type", "test type, could be 'lua','python','wasm' or 'builtin'", "builtin", STRING),
+  SB_OPT_END
+};
 
 /* List of available tests */
-sb_list_t tests;
+sb_list_t        tests;
 
 /* Global variables */
-sb_globals_t sb_globals;
-sb_test_t *current_test;
-
-/* sb_buffer_t */
-static sb_file_buffer_t *file_buffer;
-static sb_socket_buffer_t *socket_buffer;
-/* socket pair */
-static int socket_pair_fd[2];
+sb_globals_t     sb_globals;
+sb_test_t        *current_test;
 
 /* Barrier to ensure we start the benchmark run when all workers are ready */
 static sb_barrier_t worker_barrier;
@@ -153,11 +142,11 @@ static int thread_init_timeout;
 static sb_barrier_t report_barrier;
 
 /* structures to handle queue of events, needed for tx_rate mode */
-static pthread_mutex_t queue_mutex;
-static pthread_cond_t queue_cond;
-static uint64_t queue_array[MAX_QUEUE_LEN] CK_CC_CACHELINE;
-static ck_ring_buffer_t queue_ring_buffer[MAX_QUEUE_LEN] CK_CC_CACHELINE;
-static ck_ring_t queue_ring CK_CC_CACHELINE;
+static pthread_mutex_t    queue_mutex;
+static pthread_cond_t     queue_cond;
+static uint64_t           queue_array[MAX_QUEUE_LEN] CK_CC_CACHELINE;
+static ck_ring_buffer_t   queue_ring_buffer[MAX_QUEUE_LEN] CK_CC_CACHELINE;
+static ck_ring_t          queue_ring CK_CC_CACHELINE;
 
 static int report_thread_created CK_CC_CACHELINE;
 static int checkpoints_thread_created;
@@ -170,11 +159,11 @@ static sb_timer_t *timers;
 static sb_timer_t *timers_copy;
 
 /* Global execution timer */
-sb_timer_t sb_exec_timer CK_CC_CACHELINE;
+sb_timer_t      sb_exec_timer CK_CC_CACHELINE;
 
 /* timers for intermediate/checkpoint reports */
 sb_timer_t sb_intermediate_timer CK_CC_CACHELINE;
-sb_timer_t sb_checkpoint_timer CK_CC_CACHELINE;
+sb_timer_t sb_checkpoint_timer   CK_CC_CACHELINE;
 
 TLS int sb_tls_thread_id;
 
@@ -211,24 +200,26 @@ void sb_report_intermediate(sb_stat_t *stat)
                   stat->queue_length, stat->concurrency);
 }
 
+
 static void report_get_common_stat(sb_stat_t *stat, sb_counters_t cnt)
 {
   memset(stat, 0, sizeof(sb_stat_t));
 
   stat->threads_running = sb_globals.threads_running;
 
-  stat->events = cnt[SB_CNT_EVENT];
-  stat->reads = cnt[SB_CNT_READ];
-  stat->writes = cnt[SB_CNT_WRITE];
-  stat->other = cnt[SB_CNT_OTHER];
-  stat->errors = cnt[SB_CNT_ERROR];
-  stat->reconnects = cnt[SB_CNT_RECONNECT];
-  stat->bytes_read = cnt[SB_CNT_BYTES_READ];
+  stat->events =        cnt[SB_CNT_EVENT];
+  stat->reads =         cnt[SB_CNT_READ];
+  stat->writes =        cnt[SB_CNT_WRITE];
+  stat->other =         cnt[SB_CNT_OTHER];
+  stat->errors =        cnt[SB_CNT_ERROR];
+  stat->reconnects =    cnt[SB_CNT_RECONNECT];
+  stat->bytes_read =    cnt[SB_CNT_BYTES_READ];
   stat->bytes_written = cnt[SB_CNT_BYTES_WRITTEN];
 
   stat->time_total = NS2SEC(sb_timer_value(&sb_exec_timer)) -
-                     sb_globals.warmup_time;
+    sb_globals.warmup_time;
 }
+
 
 static void report_intermediate(void)
 {
@@ -246,8 +237,8 @@ static void report_intermediate(void)
   report_get_common_stat(&stat, cnt);
 
   stat.latency_pct =
-      MS2SEC(sb_histogram_get_pct_intermediate(&sb_latency_histogram,
-                                               sb_globals.percentile));
+    MS2SEC(sb_histogram_get_pct_intermediate(&sb_latency_histogram,
+                                             sb_globals.percentile));
 
   stat.time_interval = NS2SEC(sb_timer_current(&sb_intermediate_timer));
 
@@ -294,8 +285,7 @@ void sb_report_cumulative(sb_stat_t *stat)
     {
       log_text(LOG_NOTICE, "");
       log_text(LOG_NOTICE, "Number of unfinished transactions on "
-                           "forced shutdown: %u",
-               unfinished);
+               "forced shutdown: %u", unfinished);
     }
   }
 
@@ -331,17 +321,17 @@ void sb_report_cumulative(sb_stat_t *stat)
   /* Aggregate temporary timers copy */
   sb_timer_t t;
   sb_timer_init(&t);
-  for (unsigned i = 0; i < nthreads; i++)
+  for(unsigned i = 0; i < nthreads; i++)
     t = sb_timer_merge(&t, &timers_copy[i]);
 
   /* Calculate and print events distribution by threads */
-  const double events_avg = (double)t.events / nthreads;
+  const double events_avg = (double) t.events / nthreads;
   const double time_avg = stat->latency_sum / nthreads;
 
   double events_stddev = 0;
   double time_stddev = 0;
 
-  for (unsigned i = 0; i < nthreads; i++)
+  for(unsigned i = 0; i < nthreads; i++)
   {
     double diff = fabs(events_avg - timers_copy[i].events);
     events_stddev += diff * diff;
@@ -362,17 +352,17 @@ void sb_report_cumulative(sb_stat_t *stat)
   if (sb_globals.debug)
   {
     log_text(LOG_DEBUG, "Verbose per-thread statistics:\n");
-    for (unsigned i = 0; i < nthreads; i++)
+    for(unsigned i = 0; i < nthreads; i++)
     {
       log_text(LOG_DEBUG, "    thread #%3d: min: %.4fs  avg: %.4fs  max: %.4fs  "
-                          "events: %" PRIu64,
+               "events: %" PRIu64,
                i,
                NS2SEC(sb_timer_min(&timers_copy[i])),
                NS2SEC(sb_timer_avg(&timers_copy[i])),
                NS2SEC(sb_timer_max(&timers_copy[i])),
                timers_copy[i].events);
       log_text(LOG_DEBUG, "                 "
-                          "total time taken by event execution: %.4fs",
+               "total time taken by event execution: %.4fs",
                NS2SEC(sb_timer_sum(&timers_copy[i])));
     }
     log_text(LOG_NOTICE, "");
@@ -391,17 +381,18 @@ static void checkpoint(sb_stat_t *stat)
   stat->time_interval = NS2SEC(sb_timer_current(&sb_checkpoint_timer));
 
   stat->latency_pct =
-      MS2SEC(sb_histogram_get_pct_checkpoint(&sb_latency_histogram,
-                                             sb_globals.percentile));
+    MS2SEC(sb_histogram_get_pct_checkpoint(&sb_latency_histogram,
+                                           sb_globals.percentile));
 
   /* Atomically reset each timer after copying it into its timers_copy slot */
   for (size_t i = 0; i < sb_globals.threads; i++)
     sb_timer_checkpoint(&timers[i], &timers_copy[i]);
+
 }
 
 static void report_cumulative(void)
 {
-  sb_stat_t stat;
+  sb_stat_t  stat;
   sb_timer_t t;
 
   checkpoint(&stat);
@@ -409,7 +400,7 @@ static void report_cumulative(void)
   sb_timer_init(&t);
 
   /* Aggregate temporary timers copy populated by checkpoint() */
-  for (size_t i = 0; i < sb_globals.threads; i++)
+  for(size_t i = 0; i < sb_globals.threads; i++)
     t = sb_timer_merge(&t, &timers_copy[i]);
 
   /* Calculate aggregate latency values */
@@ -423,6 +414,7 @@ static void report_cumulative(void)
   else
     sb_report_cumulative(&stat);
 }
+
 
 static void sigalrm_forced_shutdown_handler(int sig)
 {
@@ -446,15 +438,25 @@ static void sigalrm_forced_shutdown_handler(int sig)
 }
 #endif
 
+
 static int register_tests(void)
 {
   SB_LIST_INIT(&tests);
 
   /* Register tests */
-  return register_test_fileio(&tests) + register_test_cpu(&tests) + register_test_memory(&tests) + register_test_threads(&tests) + register_test_mutex(&tests) + db_register() + sb_rand_register();
+  return register_test_fileio(&tests)
+    + register_test_cpu(&tests)
+    + register_test_memory(&tests)
+    + register_test_threads(&tests)
+    + register_test_mutex(&tests)
+    + db_register()
+    + sb_rand_register()
+    ;
 }
 
+
 /* Print program header */
+
 
 void print_header(void)
 {
@@ -463,13 +465,15 @@ void print_header(void)
            VERSION_STRING, SB_WITH_LUAJIT, LUAJIT_VERSION);
 }
 
+
 /* Print program usage */
+
 
 void print_help(void)
 {
   sb_list_item_t *pos;
-  sb_test_t *test;
-
+  sb_test_t      *test;
+  
   printf("Usage:\n");
   printf("  sysbench [options]... [testname] [command]\n\n");
   printf("Commands implemented by most tests: prepare run cleanup help\n\n");
@@ -501,11 +505,11 @@ void print_help(void)
 
 static int parse_option(char *name, bool ignore_unknown)
 {
-  const char *value;
-  char *tmp;
-  option_t *opt;
-  char ctmp = 0;
-  int rc;
+  const char        *value;
+  char              *tmp;
+  option_t          *opt;
+  char              ctmp = 0;
+  int               rc;
 
   tmp = strchr(name, '=');
   if (tmp != NULL)
@@ -524,7 +528,7 @@ static int parse_option(char *name, bool ignore_unknown)
     rc = set_option(name, value,
                     opt != NULL ? opt->type : SB_ARG_TYPE_STRING) == NULL;
   else
-    rc = 1;
+    rc =  1;
 
   if (tmp != NULL)
     *tmp = ctmp;
@@ -540,8 +544,8 @@ static int parse_option(char *name, bool ignore_unknown)
 
 static int parse_general_arguments(int argc, char *argv[])
 {
-  const char *testname;
-  const char *cmdname;
+  const char *      testname;
+  const char *      cmdname;
 
   /* Set default values for general options */
   if (sb_register_arg_set(general_args))
@@ -571,7 +575,7 @@ static int parse_general_arguments(int argc, char *argv[])
 
       return 1;
     }
-    else if (!parse_option(argv[i] + 2, false))
+    else if (!parse_option(argv[i]+2, false))
     {
       /* An option from general_args. Exclude it from future processing */
       argv[i] = NULL;
@@ -599,7 +603,7 @@ static int parse_test_arguments(sb_test_t *test, int argc, char *argv[])
       continue;
 
     /* At this stage an unrecognized option must throw a error. */
-    if (parse_option(argv[i] + 2, false))
+    if (parse_option(argv[i]+2, false))
     {
       fprintf(stderr, "invalid option: %s\n", argv[i]);
       return 1;
@@ -610,6 +614,7 @@ static int parse_test_arguments(sb_test_t *test, int argc, char *argv[])
 
   return 0;
 }
+
 
 void print_run_mode(sb_test_t *test)
 {
@@ -622,7 +627,7 @@ void print_run_mode(sb_test_t *test)
   if (sb_globals.tx_rate > 0)
   {
     log_text(LOG_NOTICE,
-             "Target transaction rate: %d/sec", sb_globals.tx_rate);
+            "Target transaction rate: %d/sec", sb_globals.tx_rate);
   }
 
   if (sb_globals.report_interval)
@@ -633,10 +638,10 @@ void print_run_mode(sb_test_t *test)
 
   if (sb_globals.n_checkpoints > 0)
   {
-    char list_str[MAX_CHECKPOINTS * 12];
-    char *tmp = list_str;
+    char         list_str[MAX_CHECKPOINTS * 12];
+    char         *tmp = list_str;
     unsigned int i;
-    int n, size = sizeof(list_str);
+    int          n, size = sizeof(list_str);
 
     for (i = 0; i < sb_globals.n_checkpoints - 1; i++)
     {
@@ -654,7 +659,7 @@ void print_run_mode(sb_test_t *test)
 
   if (sb_globals.debug)
     log_text(LOG_NOTICE, "Debug mode enabled.\n");
-
+  
   if (sb_globals.validate)
     log_text(LOG_NOTICE, "Validation checks: on.\n");
 
@@ -674,8 +679,8 @@ void print_run_mode(sb_test_t *test)
 
   if (sb_globals.force_shutdown)
     log_text(LOG_NOTICE, "Forcing shutdown in %u seconds",
-             (unsigned)NS2SEC(sb_globals.max_time_ns) + sb_globals.timeout);
-
+             (unsigned) NS2SEC(sb_globals.max_time_ns) + sb_globals.timeout);
+  
   log_text(LOG_NOTICE, "");
 
   if (test->ops.print_mode != NULL)
@@ -684,7 +689,7 @@ void print_run_mode(sb_test_t *test)
 
 bool sb_more_events(int thread_id)
 {
-  (void)thread_id; /* unused */
+  (void) thread_id; /* unused */
 
   if (sb_globals.error)
     return false;
@@ -734,21 +739,23 @@ bool sb_more_events(int thread_id)
     ck_pr_inc_int(&sb_globals.concurrency);
 
     timers[thread_id].queue_time = sb_timer_value(&sb_exec_timer) -
-                                   ((uint64_t *)ptr)[0];
+      ((uint64_t *) ptr)[0];
   }
 
   return true;
 }
+
 
 void sb_event_start(int thread_id)
 {
   sb_timer_start(&timers[thread_id]);
 }
 
+
 void sb_event_stop(int thread_id)
 {
-  sb_timer_t *timer = &timers[thread_id];
-  long long value;
+  sb_timer_t     *timer = &timers[thread_id];
+  long long      value;
 
   value = sb_timer_stop(timer);
 
@@ -763,37 +770,43 @@ void sb_event_stop(int thread_id)
   }
 }
 
+
 /* Main event loop -- the default thread_run implementation */
+
 
 static int thread_run(sb_test_t *test, int thread_id)
 {
-  sb_event_t event;
-  int rc = 0;
+  sb_event_t        event;
+  int               rc = 0;
 
   while (sb_more_events(thread_id) && rc == 0)
   {
-    event = test->ops.next_event(thread_id, socket_buffer, file_buffer);
+    event = test->ops.next_event(thread_id);
     if (event.type == SB_REQ_TYPE_NULL)
       break;
-    event.test = test;
+
     sb_event_start(thread_id);
+
     rc = test->ops.execute_event(&event, thread_id);
+
     sb_event_stop(thread_id);
   }
 
   return rc;
 }
 
+
 /* Main worker thread */
+
 
 static void *worker_thread(void *arg)
 {
-  sb_thread_ctxt_t *ctxt;
-  unsigned int thread_id;
-  int rc;
+  sb_thread_ctxt_t   *ctxt;
+  unsigned int       thread_id;
+  int                rc;
 
   ctxt = (sb_thread_ctxt_t *)arg;
-  sb_test_t *const test = current_test;
+  sb_test_t * const test = current_test;
 
   sb_tls_thread_id = thread_id = ctxt->id;
 
@@ -879,7 +892,7 @@ static void *eventgen_thread_proc(void *arg)
   uint64_t intr_ns = sb_rand_exp(lambda);
   uint64_t next_ns = curr_ns + intr_ns;
 
-  for (int i = 0;; i = (i + 1) % MAX_QUEUE_LEN)
+  for (int i = 0; ; i = (i+1) % MAX_QUEUE_LEN)
   {
     curr_ns = sb_timer_value(&sb_exec_timer);
     intr_ns = sb_rand_exp(lambda);
@@ -920,10 +933,10 @@ static void *eventgen_thread_proc(void *arg)
 
 static void *report_thread_proc(void *arg)
 {
-  unsigned long long pause_ns;
-  unsigned long long prev_ns;
-  unsigned long long next_ns;
-  unsigned long long curr_ns;
+  unsigned long long       pause_ns;
+  unsigned long long       prev_ns;
+  unsigned long long       next_ns;
+  unsigned long long       curr_ns;
   const unsigned long long interval_ns = SEC2NS(sb_globals.report_interval);
 
   (void)arg; /* unused */
@@ -973,9 +986,9 @@ static void *report_thread_proc(void *arg)
 
 static void *checkpoints_thread_proc(void *arg)
 {
-  unsigned long long next_ns;
-  unsigned long long curr_ns;
-  unsigned int i;
+  unsigned long long       next_ns;
+  unsigned long long       curr_ns;
+  unsigned int             i;
 
   (void)arg; /* unused */
 
@@ -1021,7 +1034,7 @@ static void *checkpoints_thread_proc(void *arg)
 
 static int threads_started_callback(void *arg)
 {
-  (void)arg; /* unused */
+  (void) arg; /* unused */
 
   /* Report initialization errors to the main thread */
   if (sb_globals.error)
@@ -1038,23 +1051,24 @@ static int threads_started_callback(void *arg)
   return 0;
 }
 
+
 /*
   Main test function: start threads, wait for them to finish and measure time.
 */
 
 static int run_test(sb_test_t *test)
 {
-  int err;
-  pthread_t report_thread;
-  pthread_t checkpoints_thread;
-  pthread_t eventgen_thread;
+  int          err;
+  pthread_t    report_thread;
+  pthread_t    checkpoints_thread;
+  pthread_t    eventgen_thread;
   unsigned int barrier_threads;
-  uint64_t old_max_events = 0;
+  uint64_t     old_max_events = 0;
 
   /* initialize test */
   if (test->ops.init != NULL && test->ops.init() != 0)
     return 1;
-
+  
   /* print test mode */
   print_run_mode(test);
 
@@ -1073,7 +1087,7 @@ static int run_test(sb_test_t *test)
 
   /* Calculate the required number of threads for the worker start barrier */
   barrier_threads = 1 /* main thread */ + sb_globals.threads +
-                    (sb_globals.tx_rate > 0) /* event generation thread */;
+    (sb_globals.tx_rate > 0) /* event generation thread */;
 
   if (sb_barrier_init(&worker_barrier, barrier_threads,
                       threads_started_callback, NULL))
@@ -1084,14 +1098,15 @@ static int run_test(sb_test_t *test)
 
   /* Calculate the required number of threads for the report start barrier */
   barrier_threads = 1 /* main thread */ +
-                    (sb_globals.report_interval > 0) /* intermediate reports thread */ +
-                    (sb_globals.n_checkpoints > 0) /* checkpoint reports thread */;
+    (sb_globals.report_interval > 0) /* intermediate reports thread */ +
+    (sb_globals.n_checkpoints > 0) /* checkpoint reports thread */;
 
   if (sb_barrier_init(&report_barrier, barrier_threads, NULL, NULL))
   {
     log_errno(LOG_FATAL, "sb_barrier_init() failed");
     return 1;
   }
+
 
   if (sb_globals.report_interval > 0)
   {
@@ -1218,8 +1233,7 @@ static int run_test(sb_test_t *test)
       itself.
     */
     if ((sb_thread_cancel(eventgen_thread) ||
-         sb_thread_join(eventgen_thread, NULL)) &&
-        sb_globals.max_time_ns == 0)
+         sb_thread_join(eventgen_thread, NULL)) && sb_globals.max_time_ns == 0)
       log_text(LOG_FATAL, "Terminating the event generator thread failed.");
   }
 
@@ -1252,10 +1266,11 @@ static int run_test(sb_test_t *test)
   return sb_globals.error != 0;
 }
 
+
 static sb_test_t *find_test(const char *name)
 {
   sb_list_item_t *pos;
-  sb_test_t *test;
+  sb_test_t      *test;
 
   SB_LIST_FOR_EACH(pos, &tests)
   {
@@ -1267,26 +1282,28 @@ static sb_test_t *find_test(const char *name)
   return NULL;
 }
 
+
 static int checkpoint_cmp(const void *a_ptr, const void *b_ptr)
 {
-  const unsigned int a = *(const unsigned int *)a_ptr;
-  const unsigned int b = *(const unsigned int *)b_ptr;
+  const unsigned int a = *(const unsigned int *) a_ptr;
+  const unsigned int b = *(const unsigned int *) b_ptr;
 
-  return (int)(a - b);
+  return (int) (a - b);
 }
+
 
 static int init(void)
 {
   option_t *opt;
-  char *tmp;
-  sb_list_t *checkpoints_list;
-  sb_list_item_t *pos_val;
-  value_t *val;
+  char     *tmp;
+  sb_list_t         *checkpoints_list;
+  sb_list_item_t    *pos_val;
+  value_t           *val;
 
   sb_globals.threads = sb_get_value_int("threads");
 
   thread_init_timeout = sb_get_value_int("thread-init-timeout");
-
+  
   if (sb_globals.threads <= 0)
   {
     log_text(LOG_FATAL, "Invalid value for --threads: %d.\n",
@@ -1310,7 +1327,7 @@ static int init(void)
 
   if (!sb_globals.max_events && !sb_globals.max_time_ns)
     log_text(LOG_WARNING, "Both event and time limits are disabled, "
-                          "running an endless test");
+             "running an endless test");
 
   if (sb_globals.max_time_ns > 0)
   {
@@ -1330,12 +1347,12 @@ static int init(void)
     else if (strcasecmp(tmp, "off"))
     {
       char *endptr;
-
+    
       sb_globals.force_shutdown = 1;
-      sb_globals.timeout = (unsigned)strtol(tmp, &endptr, 10);
+      sb_globals.timeout = (unsigned) strtol(tmp, &endptr, 10);
       if (*endptr == '%')
-        sb_globals.timeout = (unsigned)(sb_globals.timeout *
-                                        NS2SEC(sb_globals.max_time_ns) / 100);
+        sb_globals.timeout = (unsigned) (sb_globals.timeout *
+                                         NS2SEC(sb_globals.max_time_ns) / 100);
       else if (*tmp == '\0' || *endptr != '\0')
       {
         log_text(LOG_FATAL, "Invalid value for --forced-shutdown: '%s'", tmp);
@@ -1358,7 +1375,7 @@ static int init(void)
     if (opt != NULL)
       set_option(opt->name, "5", opt->type);
   }
-
+  
   sb_globals.validate = sb_get_value_flag("validate");
 
   if (sb_rand_init())
@@ -1388,11 +1405,10 @@ static int init(void)
     if (++sb_globals.n_checkpoints > MAX_CHECKPOINTS)
     {
       log_text(LOG_FATAL, "Too many checkpoints in --report-checkpoints "
-                          "(up to %d can be defined)",
-               MAX_CHECKPOINTS);
+               "(up to %d can be defined)", MAX_CHECKPOINTS);
       return 1;
     }
-    sb_globals.checkpoints[sb_globals.n_checkpoints - 1] = (unsigned int)res;
+    sb_globals.checkpoints[sb_globals.n_checkpoints-1] = (unsigned int) res;
   }
 
   if (sb_globals.n_checkpoints > 0)
@@ -1417,14 +1433,6 @@ static int init(void)
   /* LuaJIT commands */
   sb_globals.luajit_cmd = sb_get_value_string("luajit-cmd");
 
-  /* use fork mode */
-  sb_globals.fork = sb_get_value_flag("fork");
-
-  /* input data path */
-  sb_globals.input_file_path = sb_get_value_string("input");
-
-  sb_globals.buffer_size = sb_get_value_int("buffer-size");
-
   return 0;
 }
 
@@ -1432,7 +1440,7 @@ int main(int argc, char *argv[])
 {
   sb_test_t *test = NULL;
   sb_test_type_t type = SB_TEST_BUILTIN;
-  int rc = EXIT_SUCCESS;
+  int rc;
 
   sb_globals.argc = argc;
   sb_globals.argv = malloc(argc * sizeof(char *));
@@ -1467,71 +1475,10 @@ int main(int argc, char *argv[])
     printf("%s\n", VERSION_STRING);
     return EXIT_SUCCESS;
   }
-
-  if (init() || log_init())
-  {
-    return EXIT_FAILURE;
-  }
-
-  if (sb_globals.input_file_path != NULL)
-  {
-    file_buffer = create_file_buffer(sb_globals.input_file_path, sb_globals.buffer_size);
-  }
-
-  if (sb_globals.fork && file_buffer != NULL)
-  {
-    if (create_unix_socket_pair(socket_pair_fd))
-    {
-      fprintf(stderr, "create socket pair failed\n");
-      return EXIT_FAILURE;
-    }
-    int pid = fork();
-    if (pid == -1)
-    {
-      fprintf(stderr, "fork failed: %d\n", errno);
-      return EXIT_FAILURE;
-    }
-    else if (pid > 0)
-    {
-      printf("create child process, pid = %d\n", pid);
-      socket_buffer = create_socket_buffer(socket_pair_fd[0], sb_globals.buffer_size);
-      close(socket_pair_fd[1]);
-      while (true)
-      {
-        int status;
-        int bytes = transfer_data(file_buffer, socket_buffer, sb_globals.buffer_size);
-        if (bytes < 0)
-        {
-          fprintf(stderr, "transfer data to child failed\n");
-          exit(1);
-        }
-        pid_t child_exited = waitpid(pid, &status, WNOHANG);
-        if (child_exited)
-        {
-          fprintf(stderr, "child process(%d) exited: %d\n", pid, status);
-          exit(0);
-        }
-        else
-        {
-          if (reset_file_buffer(file_buffer))
-          {
-            fprintf(stderr, "reset file buffer failed\n");
-            exit(1);
-          }
-        }
-      }
-    }
-    else
-    {
-      close(socket_pair_fd[0]);
-    }
-  }
-
+  
   /* Initialize global variables and logger */
-  if (sb_counters_init())
-  {
+  if (init() || log_init() || sb_counters_init())
     return EXIT_FAILURE;
-  }
 
   print_header();
 
@@ -1546,8 +1493,7 @@ int main(int argc, char *argv[])
     {
       /* Command is a mandatory argument for built-in tests */
       fprintf(stderr, "The '%s' test requires a command argument. "
-                      "See 'sysbench %s help'\n",
-              test->sname, test->sname);
+              "See 'sysbench %s help'\n", test->sname, test->sname);
       return EXIT_FAILURE;
     }
 
@@ -1556,7 +1502,7 @@ int main(int argc, char *argv[])
       /* Is it a lua test name? */
       test = sb_load_lua(sb_globals.testname);
 
-      if (test != NULL)
+      if (test != NULL) 
       {
         type = SB_TEST_LUA;
         if (sb_globals.cmdname == NULL)
@@ -1572,7 +1518,7 @@ int main(int argc, char *argv[])
       /* Is it a python test name? */
       test = sb_load_python(sb_globals.testname, argc, argv);
 
-      if (test != NULL)
+      if (test != NULL) 
       {
         type = SB_TEST_PYTHON;
         if (sb_globals.cmdname == NULL)
@@ -1588,7 +1534,7 @@ int main(int argc, char *argv[])
       /* Is it a wasm test name? */
       test = sb_load_wasm(sb_globals.testname, argc, argv);
 
-      if (test != NULL)
+      if (test != NULL) 
       {
         type = SB_TEST_WASM;
         if (sb_globals.cmdname == NULL)
@@ -1604,7 +1550,7 @@ int main(int argc, char *argv[])
       fprintf(stderr, "can not load test(%s).\n", sb_globals.testname);
       return EXIT_FAILURE;
     }
-  }
+  } 
   else
   {
     fprintf(stderr, "Reading test script from standard input is not supported!\n");
@@ -1668,34 +1614,32 @@ int main(int argc, char *argv[])
   }
   else
   {
-    switch (type)
-    {
-    case SB_TEST_LUA:
-      if (sb_lua_loaded() && sb_lua_custom_command_defined(sb_globals.cmdname))
-      {
-        rc = sb_lua_call_custom_command(sb_globals.cmdname);
-      }
-      break;
-    default:
-      fprintf(stderr, "Unknown command: %s\n", sb_globals.cmdname);
-      rc = EXIT_FAILURE;
-      break;
+    switch (type) {
+      case SB_TEST_LUA:
+        if (sb_lua_loaded() && sb_lua_custom_command_defined(sb_globals.cmdname))
+        {
+          rc = sb_lua_call_custom_command(sb_globals.cmdname);
+        }
+        break;
+      default:
+        fprintf(stderr, "Unknown command: %s\n", sb_globals.cmdname);
+        rc = EXIT_FAILURE;
+        break;
     }
   }
 
 end:
-  switch (type)
-  {
-  case SB_TEST_LUA:
-    if (sb_lua_loaded())
-      sb_lua_done();
-    break;
-  case SB_TEST_PYTHON:
-    if (sb_python_loaded())
-      sb_python_done();
-    break;
-  default:
-    break;
+  switch (type) {
+    case SB_TEST_LUA:
+      if (sb_lua_loaded())
+        sb_lua_done();
+      break;
+    case SB_TEST_PYTHON:
+      if (sb_python_loaded())
+        sb_python_done();
+      break;
+    default:
+      break;
   }
 
   db_done();
@@ -1712,6 +1656,7 @@ end:
 
   free(timers);
   free(timers_copy);
+
   free(sb_globals.argv);
 
   return rc;
@@ -1752,26 +1697,4 @@ void *sb_alloc_per_thread_array(size_t size)
   memset(ptr, 0, bsize);
 
   return ptr;
-}
-
-
-int transfer_data(sb_file_buffer_t *file_buffer, sb_socket_buffer_t *socket_buffer, size_t count)
-{
-  ssize_t total = 0;
-  while (true)
-  {
-    ssize_t bytes = sendfile(socket_buffer->fd, file_buffer->fd, NULL, count);
-    if (bytes < 0)
-    {
-      return -1;
-    }
-    else if (bytes == 0)
-    {
-      return total;
-    }
-    else
-    {
-      total += bytes;
-    }
-  }
 }

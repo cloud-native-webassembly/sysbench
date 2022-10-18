@@ -92,6 +92,10 @@ static wasmer_instance_t **instances CK_CC_CACHELINE;
 static sb_test_t sbtest CK_CC_CACHELINE;
 static TLS sb_wasmer_ctxt_t tls_wasmer_ctxt CK_CC_CACHELINE;
 
+/* List of pre-loaded internal scripts */
+static internal_script_t internal_scripts[] = {
+    {NULL, NULL, 0}};
+
 static WasmEdge_ConfigureContext *config_cxt;
 static wasmer_instance_t *vm_context;
 
@@ -424,9 +428,60 @@ int sb_wasmer_free_module(wasmer_instance_t *instance)
   return 0;
 }
 
+/* Execute a given command */
+static int execute_command(const char *cmd)
+{
+  return 0;
+}
+
+/* Prepare command */
+
+int sb_wasmer_cmd_prepare(void)
+{
+  return execute_command(PREPARE_FUNC);
+}
+
+/* Cleanup command */
+
+int sb_wasmer_cmd_cleanup(void)
+{
+  return execute_command(CLEANUP_FUNC);
+}
+
+/* Help command */
+
+int sb_wasmer_cmd_help(void)
+{
+  return execute_command(HELP_FUNC);
+}
+
+/* Check if a specified hook exists */
+
 bool sb_wasm_loaded(void)
 {
   return vm_context != NULL;
+}
+
+static void *cmd_worker_thread(void *arg)
+{
+  sb_thread_ctxt_t *ctxt = (sb_thread_ctxt_t *)arg;
+
+  sb_tls_thread_id = ctxt->id;
+
+  /* Initialize thread-local RNG state */
+  sb_rand_thread_init();
+
+  wasmer_instance_t *const instance = sb_wasmer_new_module();
+
+  if (instance == NULL)
+  {
+    log_text(LOG_FATAL, "failed to create a thread to execute command");
+    return NULL;
+  }
+
+  sb_wasmer_free_module(instance);
+
+  return NULL;
 }
 
 int sb_wasm_report_thread_init(void)

@@ -17,22 +17,20 @@
 */
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+# include "config.h"
 #endif
 
 #ifdef STDC_HEADERS
-#include <stdlib.h>
-#include <inttypes.h>
+# include <stdlib.h>
+# include <inttypes.h>
 #endif
 
 #ifdef HAVE_UNISTD_H
-#include <unistd.h>
+# include <unistd.h>
 #endif
 
 #include "sb_util.h"
 #include "sb_logger.h"
-#include "sb_file.h"
-#include "sb_socket.h"
 
 /*
   Allocate a buffer of a specified size such that the address is a multiple of a
@@ -44,17 +42,17 @@ void *sb_memalign(size_t size, size_t alignment)
   void *buf;
 
 #ifdef HAVE_POSIX_MEMALIGN
-  int ret = posix_memalign(&buf, alignment, size);
+  int ret= posix_memalign(&buf, alignment, size);
   if (ret != 0)
     buf = NULL;
 #elif defined(HAVE_MEMALIGN)
   buf = memalign(alignment, size);
 #elif defined(HAVE_VALLOC)
   /* Allocate on page boundary */
-  (void)alignment; /* unused */
+  (void) alignment; /* unused */
   buffer = valloc(size);
 #else
-#error Cannot find an aligned allocation library function!
+# error Cannot find an aligned allocation library function!
 #endif
 
   return buf;

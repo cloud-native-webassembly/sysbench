@@ -110,9 +110,6 @@ static int sb_python_op_thread_done(int);
 static sb_event_t sb_python_op_next_event(int);
 static int sb_python_op_execute_event(sb_event_t *event, int);
 
-/* parse and transfer data */
-PyObject *parse_string_to_bigint(char *args);
-
 static sb_operations_t python_ops = {
     .init = sb_python_op_init,
     .thread_init = sb_python_op_thread_init,
@@ -153,17 +150,20 @@ static bool func_available(PyObject *module, const char *func)
   return available;
 }
 
-static int python_call_function(PyObject *module, const char *fname, int thread_id, PyObject *pArgs)
+static int python_call_function(PyObject *module, const char *fname, int thread_id)
 {
   PyObject *pFunc = PyObject_GetAttrString(pModule, fname);
   if (pFunc && PyCallable_Check(pFunc))
   {
-    // pass value to udf
+    PyObject *pArgs = PyTuple_New(1);
+    PyObject *pThreadId = PyLong_FromLong(20);
+    PyTuple_SetItem(pArgs, 0, pThreadId);
+    // TODO pass value to udf
     PyObject *pValue = PyObject_CallObject(pFunc, pArgs);
     Py_DECREF(pArgs);
     if (pValue != NULL)
     {
-      // TODO this is return value
+      // printf("call function %s successful: %lu\n", fname, PyLong_AsLong(pValue));
       Py_DECREF(pValue);
     }
     else
@@ -197,15 +197,7 @@ static int export_options(PyObject *module)
   return 0;
 }
 
-static int load_internal_scripts()
-{
-  for (internal_script_t *s = internal_scripts; s->name != NULL; s++)
-  {
-    PyRun_SimpleString((const char *)s->source);
-  }
-
-  return 0;
-}
+/* Load a specified Lua script */
 
 sb_test_t *sb_load_python(const char *testname, int argc, char *argv[])
 {
@@ -222,8 +214,7 @@ sb_test_t *sb_load_python(const char *testname, int argc, char *argv[])
   }
   Py_Initialize();
   // PySys_SetArgv(argc, &argv); TODO: set argv
-  load_internal_scripts();
-
+  PyRun_SimpleString(sysbench_py);
   PyObject *pName = PyUnicode_DecodeFSDefault(sbtest.lname);
   pModule = PyImport_Import(pName);
   if (pModule == NULL)
@@ -299,8 +290,7 @@ int sb_python_op_init(void)
 
   if (func_available(pModule, INIT_FUNC))
   {
-    PyObject *pArgs = PyTuple_New(0);
-    if (python_call_function(pModule, INIT_FUNC, -1, pArgs))
+    if (python_call_function(pModule, INIT_FUNC, -1))
     {
       call_error(pModule, INIT_FUNC);
       return 1;
@@ -332,8 +322,7 @@ int sb_python_op_thread_init(int thread_id)
 
   if (func_available(module, THREAD_INIT_FUNC))
   {
-    PyObject *pArgs = PyTuple_New(0);
-    if (python_call_function(module, THREAD_INIT_FUNC, thread_id, pArgs))
+    if (python_call_function(module, THREAD_INIT_FUNC, thread_id))
     {
       call_error(module, THREAD_INIT_FUNC);
       return 1;
@@ -349,8 +338,7 @@ int sb_python_op_thread_run(int thread_id)
 
   if (func_available(module, THREAD_RUN_FUNC))
   {
-    PyObject *pArgs = PyTuple_New(0);
-    if (python_call_function(module, THREAD_RUN_FUNC, thread_id, pArgs))
+    if (python_call_function(module, THREAD_RUN_FUNC, thread_id))
     {
       call_error(module, THREAD_RUN_FUNC);
       return 1;
@@ -365,8 +353,7 @@ int sb_python_op_thread_done(int thread_id)
   PyObject *const module = modules[thread_id];
   if (func_available(module, THREAD_RUN_FUNC))
   {
-    PyObject *pArgs = PyTuple_New(0);
-    if (python_call_function(module, THREAD_RUN_FUNC, thread_id, pArgs))
+    if (python_call_function(module, THREAD_RUN_FUNC, thread_id))
     {
       call_error(module, THREAD_RUN_FUNC);
       return 1;
@@ -381,8 +368,7 @@ int sb_python_op_done(void)
 {
   if (func_available(pModule, DONE_FUNC))
   {
-    PyObject *pArgs = PyTuple_New(0);
-    if (python_call_function(pModule, DONE_FUNC, -1, pArgs))
+    if (python_call_function(pModule, DONE_FUNC, -1))
     {
       call_error(pModule, DONE_FUNC);
       return 1;
@@ -407,20 +393,7 @@ inline sb_event_t sb_python_op_next_event(int thread_id)
 int sb_python_op_execute_event(sb_event_t *r, int thread_id)
 {
   PyObject *const module = modules[thread_id];
-  sb_test_t *test = r->test;
-
-  PyObject *pArgs;
-  if (!strcmp(test->sname, "string_to_bigint"))
-  {
-    pArgs = parse_string_to_bigint(r->args);
-  }
-  else
-  {
-    log_text(LOG_FATAL, "UDF %s not supported now!", test->sname);
-    return 1;
-  }
-
-  if (python_call_function(module, EVENT_FUNC, thread_id, pArgs))
+  if (python_call_function(module, EVENT_FUNC, thread_id))
   {
     call_error(module, EVENT_FUNC);
     return 1;
@@ -497,6 +470,28 @@ bool sb_python_loaded(void)
   return pModule != NULL;
 }
 
+static void *cmd_worker_thread(void *arg)
+{
+  sb_thread_ctxt_t *ctxt = (sb_thread_ctxt_t *)arg;
+
+  sb_tls_thread_id = ctxt->id;
+
+  /* Initialize thread-local RNG state */
+  sb_rand_thread_init();
+
+  PyObject *const module = sb_python_new_module();
+
+  if (module == NULL)
+  {
+    log_text(LOG_FATAL, "failed to create a thread to execute command");
+    return NULL;
+  }
+
+  sb_python_free_module(module);
+
+  return NULL;
+}
+
 int sb_python_report_thread_init(void)
 {
   if (tls_python_ctxt.module == NULL)
@@ -514,12 +509,4 @@ void sb_python_report_thread_done(void *arg)
 
   if (sb_python_loaded())
     sb_python_free_module(tls_python_ctxt.module);
-}
-
-PyObject *parse_string_to_bigint(char *args)
-{
-  PyObject *pArgs = PyTuple_New(1);
-  PyObject *pString = Py_BuildValue("s", args);
-  PyTuple_SetItem(pArgs, 0, pString);
-  return pArgs;
 }
