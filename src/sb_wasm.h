@@ -20,23 +20,23 @@
 #define SB_WASM_H
 
 #ifdef HAVE_CONFIG_H
-# include "config.h"
+#include "config.h"
 #endif
 
 #ifdef HAVE_WAMR
-# include "sb_wamr.h"
+#include "sb_wamr.h"
 #endif
 
 #ifdef HAVE_WASMEDGE
-# include "sb_wasmedge.h"
+#include "sb_wasmedge.h"
 #endif
 
 #ifdef HAVE_WASMER
-# include "sb_wasmer.h"
+#include "sb_wasmer.h"
 #endif
 
 #ifdef HAVE_WASMTIME
-# include "sb_wasmtime.h"
+#include "sb_wasmtime.h"
 #endif
 
 #include "sysbench.h"
