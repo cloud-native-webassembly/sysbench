@@ -33,3 +33,5 @@ int sb_wamr_report_thread_init(void);
 void sb_wamr_report_thread_done(void *);
 
 bool sb_wamr_loaded(void);
+
+sb_wasm_vm wamr_vm;

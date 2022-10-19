@@ -116,4 +116,6 @@ void *sb_memalign(size_t size, size_t alignment);
 /* Get OS page size */
 size_t sb_getpagesize(void);
 
+#define xfree(ptr) ({ if ((ptr) != NULL) free((void *) ptr); ptr = NULL; })
+
 #endif /* SB_UTIL_H */

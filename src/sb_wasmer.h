@@ -33,3 +33,6 @@ int sb_wasmer_report_thread_init(void);
 void sb_wasmer_report_thread_done(void *);
 
 bool sb_wasmer_loaded(void);
+
+
+sb_wasm_vm wasmer_vm;
