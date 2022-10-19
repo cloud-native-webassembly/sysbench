@@ -1,5 +1,21 @@
 #include "sb_wasm.h"
 
+#ifdef HAVE_WAMR
+#include "sb_wamr.h"
+#endif
+
+#ifdef HAVE_WASMEDGE
+#include "sb_wasmedge.h"
+#endif
+
+#ifdef HAVE_WASMER
+#include "sb_wasmer.h"
+#endif
+
+#ifdef HAVE_WASMTIME
+#include "sb_wasmtime.h"
+#endif
+
 #define EVENT_FUNC "event"
 #define PREPARE_FUNC "prepare"
 #define CLEANUP_FUNC "cleanup"
@@ -45,21 +61,21 @@ static sb_wasm_sandbox **sandboxs CK_CC_CACHELINE;
 static sb_wasm_vm *wasm_vm;
 static sb_wasm_module *wasm_module;
 
-sb_test_t *sb_load_wasm(const char *testname, const char *runtime, int argc, char *argv[]) {
+sb_test_t *sb_load_wasm(const char *testname, const char *runtime) {
   log_text(LOG_INFO, "load wasm using runtime: %s", runtime);
   sb_wasm_runtime_t runtime_t = wasm_runtime_name_to_type(runtime);
   switch (runtime_t) {
     case SB_WASM_RUNTIME_WAMR:
-      wasm_vm = &wamr_vm;
+      wasm_vm = create_wamr_vm();
       break;
     case SB_WASM_RUNTIME_WASMEDGE:
-      wasm_vm = &wasmedge_vm;
+      wasm_vm = create_wasmedge_vm();
       break;
     case SB_WASM_RUNTIME_WASMER:
-      wasm_vm = &wasmer_vm;
+      wasm_vm = create_wasmer_vm();
       break;
     case SB_WASM_RUNTIME_WASMTIME:
-      wasm_vm = &wasmtime_vm;
+      wasm_vm = create_wasmtime_vm();
       break;
     default:
       log_text(LOG_FATAL, "unsupported wasm runtime: %s", runtime);

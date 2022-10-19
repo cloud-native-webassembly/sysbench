@@ -21,6 +21,7 @@
 #endif
 
 #include "sysbench.h"
+#include "sb_wasm.h"
 
 sb_test_t *sb_load_wasmedge(const char *testname, int argc, char *argv[]);
 
@@ -34,4 +35,4 @@ void sb_wasmedge_report_thread_done(void *);
 
 bool sb_wasmedge_loaded(void);
 
-sb_wasm_vm wasmedge_vm;
+sb_wasm_vm *create_wasmedge_vm(void);
