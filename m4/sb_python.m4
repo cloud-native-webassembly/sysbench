@@ -19,49 +19,40 @@
 # ---------------------------------------------------------------------------
 # modified https://github.com/libyal/libsmraw/blob/main/m4/python.m4
 
-AC_DEFUN([AX_PROG_PYTHON], [
-    ax_python_progs="python3";
-    ax_python_config="python3-config"
-    AS_IF(
-      [test "x${PYTHON_HOME}" != x],
-      [
-        AC_CHECK_PROGS([PYTHON], [$ax_python_progs], [Unknown], [${PYTHON_HOME}/bin])
-        AC_CHECK_PROGS([PYTHON_CONFIG], [$ax_python_config], [Unknown], [${PYTHON_HOME}/bin])
-      ],
-      [
-        AC_CHECK_PROGS([PYTHON], [$ax_python_progs], [Unknown])
-        PYTHON_HOME=$(readlink -f $(dirname $(dirname $(which $PYTHON))))
-        AC_CHECK_PROGS([PYTHON_CONFIG], [$ax_python_config], [Unknown])
-      ]
-    )
+AC_DEFUN([AX_PYTHON_CHECK], [
+  ax_python_progs="python3";
+  ax_python_config="python3-config"
+  AS_IF(
+    [test "x${PYTHON_HOME}" != x],
+    [
+      AC_CHECK_PROGS([PYTHON], [$ax_python_progs], [Unknown], [${PYTHON_HOME}/bin])
+      AC_CHECK_PROGS([PYTHON_CONFIG], [$ax_python_config], [Unknown], [${PYTHON_HOME}/bin])
+    ],
+    [
+      AC_CHECK_PROGS([PYTHON], [$ax_python_progs], [Unknown])
+      PYTHON_HOME=$(readlink -f $(dirname $(dirname $(which $PYTHON))))
+      AC_CHECK_PROGS([PYTHON_CONFIG], [$ax_python_config], [Unknown])
+    ]
+  )
     
   AC_SUBST([PYTHON_HOME])
-  AC_SUBST([PYTHON], [$ax_python_progs])
-  AC_SUBST([PYTHON_CONFIG], [$ax_python_config])]
-)
+  AC_SUBST([PYTHON])
+  AC_SUBST([PYTHON_CONFIG])
 
-AC_DEFUN([AX_PYTHON_CHECK], [
-  AX_PROG_PYTHON
-  ax_prog_python_version=`${PYTHON} -c "import sys; sys.stdout.write('%d.%d' % (sys.version_info[[0]], sys.version_info[[1]]))" 2>/dev/null`;
+  ax_prog_python_version=`${PYTHON} -c "import sys; sys.stdout.write('%d.%d' % (sys.version_info[0], sys.version_info[1]))" 2>/dev/null`;
   AS_IF([test "x${PYTHON_CONFIG}" != x], [
     PYTHON_INCLUDES=`${PYTHON_CONFIG} --includes 2>/dev/null`;
     AC_SUBST([PYTHON_INCLUDES])
 
-    PYTHON_LIBS="-L`${PYTHON_CONFIG} --configdir` -lpython${ax_prog_python_version}"
+    PYTHON_LIBS="-L`${PYTHON_CONFIG} --configdir`"
     AC_SUBST([PYTHON_LIBS])
 
     PYTHON_CFLAGS=`${PYTHON_CONFIG} --cflags 2>/dev/null`;
     AC_SUBST([PYTHON_CFLAGS])
 
     dnl Check for Python libraries
-    PYTHON_LDFLAGS=`${PYTHON_CONFIG} --ldflags 2>/dev/null`;
+    PYTHON_LDFLAGS="`${PYTHON_CONFIG} --ldflags 2>/dev/null` -L${PYTHON_HOME}/lib -lpython3";
     AC_SUBST([PYTHON_LDFLAGS])
-
-    dnl For CygWin add the -no-undefined linker flag
-    AS_CASE(
-      [$host_os],
-      [cygwin*],[PYTHON_LDFLAGS="${PYTHON_LDFLAGS} -no-undefined"],
-      [*],[])
 
     dnl Check for the existence of Python.h
     BACKUP_CPPFLAGS="${CPPFLAGS}"
@@ -79,26 +70,6 @@ AC_DEFUN([AX_PYTHON_CHECK], [
     [ac_cv_enable_python=no],
     [ac_cv_enable_python=${ax_prog_python_version}
     
-    dnl Check for Python prefix
-    AS_IF(
-      [test "x${ac_cv_with_pyprefix}" = x || test "x${ac_cv_with_pyprefix}" = xno],
-      [ax_python_prefix="\${prefix}"],
-      [ax_python_prefix=`${PYTHON_CONFIG} --prefix 2>/dev/null`])
-
-    AC_SUBST(
-      [PYTHON_PREFIX],
-      [$ax_python_prefix])
-
-    dnl Check for Python exec-prefix
-    AS_IF(
-      [test "x${ac_cv_with_pyprefix}" = x || test "x${ac_cv_with_pyprefix}" = xno],
-      [ax_python_exec_prefix="\${exec_prefix}"],
-      [ax_python_exec_prefix=`${PYTHON_CONFIG} --exec-prefix 2>/dev/null`])
-
-    AC_SUBST(
-      [PYTHON_EXEC_PREFIX],
-      [$ax_python_exec_prefix])
-
     dnl Check for Python library directory
     ax_python_pythondir_suffix=`${PYTHON} -c "import sys; import distutils.sysconfig; sys.stdout.write(distutils.sysconfig.get_python_lib(0, 0, prefix=''))" 2>/dev/null`;
 

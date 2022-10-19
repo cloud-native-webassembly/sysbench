@@ -48,7 +48,7 @@ AC_DEFUN([AX_CHECK_WAMR], [
         [test "x${WAMR}" != x],
         [
           WAMR_CFLAGS="-I${WAMR_HOME}/include"
-          WAMR_LDFLAGS="-L${WAMR_HOME}/lib libvmlib.a"
+          WAMR_LDFLAGS="-L${WAMR_HOME}/lib"
           WAMR_LIBS="-liwasm"
           AC_SUBST([WAMR_HOME])
           AC_SUBST([WAMR])
@@ -97,8 +97,8 @@ AC_DEFUN([AX_CHECK_WASMEDGE], [
         [test "x${WASMEDGE}" != x],
         [
           WASMEDGE_CFLAGS="-I${WASMEDGE_HOME}/include"
-          WASMEDGE_LDFLAGS="-L${WASMEDGE_HOME}/lib -lstdc++ -lgcc_s -pthread -ldl -lutil -lm"
-          WASMEDGE_LIBS="-lwasmedge_c"
+          WASMEDGE_LDFLAGS="-L${WASMEDGE_HOME}/lib64"
+          WASMEDGE_LIBS="-lwasmedge"
           AC_SUBST([WASMEDGE_HOME])
           AC_SUBST([WASMEDGE])
           AC_SUBST([WASMEDGE_CFLAGS])

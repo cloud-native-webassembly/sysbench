@@ -23,22 +23,6 @@
 #include "config.h"
 #endif
 
-#ifdef HAVE_WAMR
-#include "sb_wamr.h"
-#endif
-
-#ifdef HAVE_WASMEDGE
-#include "sb_wasmedge.h"
-#endif
-
-#ifdef HAVE_WASMER
-#include "sb_wasmer.h"
-#endif
-
-#ifdef HAVE_WASMTIME
-#include "sb_wasmtime.h"
-#endif
-
 #include "sysbench.h"
 
 typedef enum {
@@ -102,7 +86,7 @@ inline sb_wasm_runtime_t wasm_runtime_name_to_type(const char *runtime) {
   }
 }
 
-sb_test_t *sb_load_wasm(const char *testname, const char *runtime, int argc, char *argv[]);
+sb_test_t *sb_load_wasm(const char *testname, const char *runtime);
 
 void sb_wasm_done(void);
 

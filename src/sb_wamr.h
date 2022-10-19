@@ -21,6 +21,7 @@
 #endif
 
 #include "sysbench.h"
+#include "sb_wasm.h"
 
 sb_test_t *sb_load_wamr(const char *testname, int argc, char *argv[]);
 
@@ -34,4 +35,4 @@ void sb_wamr_report_thread_done(void *);
 
 bool sb_wamr_loaded(void);
 
-sb_wasm_vm wamr_vm;
+sb_wasm_vm *create_wamr_vm(void);

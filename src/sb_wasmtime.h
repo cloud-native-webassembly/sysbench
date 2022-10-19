@@ -21,6 +21,7 @@
 #endif
 
 #include "sysbench.h"
+#include "sb_wasm.h"
 
 sb_test_t *sb_load_wasmtime(const char *testname, int argc, char *argv[]);
 
@@ -34,5 +35,4 @@ void sb_wasmtime_report_thread_done(void *);
 
 bool sb_wasmtime_loaded(void);
 
-
-sb_wasm_vm wasmtime_vm;
+sb_wasm_vm *create_wasmtime_vm(void);

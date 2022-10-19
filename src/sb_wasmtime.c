@@ -22,7 +22,6 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <wasm.h>
 
 #include "sb_wasm.h"
 
