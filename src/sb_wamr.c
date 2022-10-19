@@ -34,6 +34,7 @@
 #include "sb_ck_pr.h"
 #include "sb_rand.h"
 #include "sb_thread.h"
+#include "sb_file.h"
 
 #define SB_LUA_EXPORT
 #include "sb_counter.h"
@@ -153,7 +154,7 @@ static int export_options(wamr_instance_t *instance) {
   return 0;
 }
 
-uint8_t *wasm_bytes;
+
 long wasm_len;
 
 sb_test_t *sb_load_wamr(const char *testname, int argc, char *argv[]) {
@@ -166,13 +167,7 @@ sb_test_t *sb_load_wamr(const char *testname, int argc, char *argv[]) {
     goto error;
   }
 
-  FILE *file = fopen(sbtest.lname, "r");
-  fseek(file, 0, SEEK_END);
-  long wasm_len = ftell(file);
-  wasm_bytes = malloc(len);
-  fseek(file, 0, SEEK_SET);
-  fread(bytes, 1, len, file);
-  fclose(file);
+
 
   /* Test commands */
   if (func_available(vm_context, PREPARE_FUNC))

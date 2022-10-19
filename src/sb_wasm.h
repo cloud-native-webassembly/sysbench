@@ -41,6 +41,32 @@
 
 #include "sysbench.h"
 
+typedef enum {
+  SB_WASM_RUNTIME_UNKNOWN,
+  SB_WASM_RUNTIME_WAMR,
+  SB_WASM_RUNTIME_WASMEDGE,
+  SB_WASM_RUNTIME_WASMER,
+  SB_WASM_RUNTIME_WASMTIME
+} sb_wasm_runtime_t;
+
+typedef struct 
+{
+
+} sb_wasm_module;
+
+typedef int sb_wasm_init(void);
+typedef int sb_wasm_destroy(void);
+typedef sb_wasm_module sb_wasm_load_module(const char* filepath);
+
+typedef struct
+{
+  sb_wasm_init *init;
+  sb_wasm_destroy *destroy;
+  sb_wasm_load_module *load_module;
+} sb_wasm_vm;
+
+sb_wasm_runtime_t wasm_runtime_name_to_type(const char *runtime);
+
 sb_test_t *sb_load_wasm(const char *testname, const char *runtime, int argc, char *argv[]);
 
 void sb_wasm_done(void);

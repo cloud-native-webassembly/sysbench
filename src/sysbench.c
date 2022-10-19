@@ -1640,6 +1640,10 @@ end:
       if (sb_python_loaded())
         sb_python_done();
       break;
+    case SB_TEST_WASM:
+      if (sb_wasm_loaded())
+        sb_wasm_done();
+      break;
     default:
       break;
   }
