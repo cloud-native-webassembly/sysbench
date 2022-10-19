@@ -33,3 +33,6 @@ int sb_wasmtime_report_thread_init(void);
 void sb_wasmtime_report_thread_done(void *);
 
 bool sb_wasmtime_loaded(void);
+
+
+sb_wasm_vm wasmtime_vm;

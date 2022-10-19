@@ -33,3 +33,5 @@ int sb_wasmedge_report_thread_init(void);
 void sb_wasmedge_report_thread_done(void *);
 
 bool sb_wasmedge_loaded(void);
+
+sb_wasm_vm wasmedge_vm;
