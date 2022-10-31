@@ -1441,7 +1441,7 @@ int main(int argc, char *argv[])
 {
   sb_test_t *test = NULL;
   sb_test_type_t type = SB_TEST_BUILTIN;
-  int rc;
+  int rc = EXIT_FAILURE;
 
   sb_globals.argc = argc;
   sb_globals.argv = malloc(argc * sizeof(char *));
@@ -1513,7 +1513,7 @@ int main(int argc, char *argv[])
         }
       }
     }
-
+#ifdef HAVE_PYTHON
     if (test == NULL && !strcmp(test_type, "python"))
     {
       /* Is it a python test name? */
@@ -1529,7 +1529,8 @@ int main(int argc, char *argv[])
         }
       }
     }
-
+#endif
+#ifdef HAVE_WASM
     if (test == NULL && !strcmp(test_type, "wasm"))
     {
       const char *wasm_runtime = sb_get_value_string("wasm-runtime");
@@ -1546,6 +1547,7 @@ int main(int argc, char *argv[])
         }
       }
     }
+#endif
 
     if (test == NULL)
     {
@@ -1636,14 +1638,18 @@ end:
       if (sb_lua_loaded())
         sb_lua_done();
       break;
+#ifdef HAVE_PYTHON
     case SB_TEST_PYTHON:
       if (sb_python_loaded())
         sb_python_done();
       break;
+#endif
+#ifdef HAVE_WASM
     case SB_TEST_WASM:
       if (sb_wasm_loaded())
         sb_wasm_done();
       break;
+#endif
     default:
       break;
   }
