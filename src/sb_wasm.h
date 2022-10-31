@@ -25,7 +25,8 @@
 
 #include "sysbench.h"
 
-typedef enum {
+typedef enum
+{
   SB_WASM_RUNTIME_UNKNOWN,
   SB_WASM_RUNTIME_WAMR,
   SB_WASM_RUNTIME_WASMEDGE,
@@ -33,23 +34,25 @@ typedef enum {
   SB_WASM_RUNTIME_WASMTIME
 } sb_wasm_runtime_t;
 
-typedef enum {
+typedef enum
+{
   SB_WASM_ERROR_NONE,
   SB_WASM_ERROR_RESTART_EVENT
 } sb_wasm_error_t;
 
-typedef struct {
+typedef struct
+{
 } sb_wasm_function;
 
-typedef int sb_wasm_call_function(void *context, const char *fname,int thread_id);
+typedef int sb_wasm_call_function(void *context, const char *fname, int thread_id);
 
 typedef struct
 {
   void *context;
   sb_wasm_call_function *call_function;
-} sb_wasm_sandbox;
+} sb_wasm_sandbox; /* sandbox is an instance of module */
 
-typedef sb_wasm_sandbox *sb_wasm_create_sandbox(void);
+typedef sb_wasm_sandbox *sb_wasm_create_sandbox(void *context, int thread_id);
 typedef bool sb_wasm_function_available(void *context, const char *fname);
 
 typedef struct
@@ -57,7 +60,7 @@ typedef struct
   void *context;
   sb_wasm_create_sandbox *create_sandbox;
   sb_wasm_function_available *function_available;
-} sb_wasm_module;
+} sb_wasm_module; /* module is an instance of module file */
 
 typedef bool sb_wasm_init(void);
 typedef int sb_wasm_destroy(void);
@@ -66,22 +69,32 @@ typedef sb_wasm_module *sb_wasm_load_module(const char *filepath);
 typedef struct
 {
   sb_wasm_runtime_t runtime_type;
-  const char* runtime_name; 
+  const char *runtime_name;
   sb_wasm_init *init;
   sb_wasm_destroy *destroy;
   sb_wasm_load_module *load_module;
 } sb_wasm_vm;
 
-inline sb_wasm_runtime_t wasm_runtime_name_to_type(const char *runtime) {
-  if (!strcmp(runtime, "wamr")) {
+inline sb_wasm_runtime_t wasm_runtime_name_to_type(const char *runtime)
+{
+  if (!strcmp(runtime, "wamr"))
+  {
     return SB_WASM_RUNTIME_WAMR;
-  } else if (!strcmp(runtime, "wasmedge")) {
+  }
+  else if (!strcmp(runtime, "wasmedge"))
+  {
     return SB_WASM_RUNTIME_WASMEDGE;
-  } else if (!strcmp(runtime, "wasmer")) {
+  }
+  else if (!strcmp(runtime, "wasmer"))
+  {
     return SB_WASM_RUNTIME_WASMER;
-  } else if (!strcmp(runtime, "wasmtime")) {
+  }
+  else if (!strcmp(runtime, "wasmtime"))
+  {
     return SB_WASM_RUNTIME_WASMTIME;
-  } else {
+  }
+  else
+  {
     return SB_WASM_RUNTIME_UNKNOWN;
   }
 }

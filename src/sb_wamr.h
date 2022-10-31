@@ -36,3 +36,8 @@ void sb_wamr_report_thread_done(void *);
 bool sb_wamr_loaded(void);
 
 sb_wasm_vm *create_wamr_vm(void);
+sb_wasm_sandbox *sb_wamr_create_sandbox(void *context, int thread_id);
+
+#define WAMR_DEFAULT_STACK_SIZE 8092
+#define WAMR_DEFAULT_HEAP_SIZE 1024 * 1024
+#define WAMR_DEFAULT_THREAD_NUM 16
