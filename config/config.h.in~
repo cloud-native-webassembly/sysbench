@@ -105,6 +105,9 @@
 /* Define to 1 if you have the `pthread_yield' function. */
 #undef HAVE_PTHREAD_YIELD
 
+/* Define if python was found */
+#undef HAVE_PYTHON
+
 /* Define to 1 if you have the <Python.h> header file. */
 #undef HAVE_PYTHON_H
 
@@ -173,6 +176,18 @@
 
 /* Define to 1 if you have the `valloc' function. */
 #undef HAVE_VALLOC
+
+/* Define if wamr was found */
+#undef HAVE_WAMR
+
+/* Define if wasmedge was found */
+#undef HAVE_WASMEDGE
+
+/* Define if wasmer was found */
+#undef HAVE_WASMER
+
+/* Define if any wasm runtime was found */
+#undef HAVE_WASMTIME
 
 /* Define if /proc/meminfo shows the huge page size (Linux only) */
 #undef HUGETLB_USE_PROC_MEMINFO

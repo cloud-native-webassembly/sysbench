@@ -217,8 +217,17 @@ AC_DEFUN([AX_CHECK_WASMTIME], [
 ])
 
 AC_DEFUN([SB_WASM], [
-   AX_CHECK_WAMR
-   AX_CHECK_WASMEDGE
-   AX_CHECK_WASMER
-   AX_CHECK_WASMTIME
+  ac_cv_enable_wasm=no
+  AX_CHECK_WAMR
+  AX_CHECK_WASMEDGE
+  AX_CHECK_WASMER
+  AX_CHECK_WASMTIME
+  AC_ARG_WITH(
+    [wasm],
+    AS_HELP_STRING([--without-wasm],[compile with wasmtime support (default is enabled)]),
+    [],
+    [ac_cv_enable_wasm=yes]
+  )
+  AC_DEFINE(HAVE_WASM,1,[Define if any wasm runtime was found])
+  AM_CONDITIONAL(HAVE_WASM, [test "x${ac_cv_enable_wasm}" != xno])
 ])

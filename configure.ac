@@ -448,6 +448,7 @@ if test "x${ac_cv_enable_python}" != xno; then
   AC_MSG_RESULT([PYTHON_LIBS        : ${PYTHON_LIBS}])
   AC_MSG_RESULT([])
 fi
+AC_MSG_RESULT([WASM support : ${ac_cv_enable_wasm}])
 if test "x${ac_cv_enable_wamr}" != xno; then
   AC_MSG_RESULT([wamr was found in ${WAMR_HOME}])
   AC_MSG_RESULT([WAMR               : ${WAMR}])
