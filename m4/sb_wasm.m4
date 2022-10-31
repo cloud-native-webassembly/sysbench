@@ -23,7 +23,7 @@ AC_DEFUN([AX_CHECK_WAMR], [
     [wamr],
     AS_HELP_STRING([--with-wamr],[compile with wamr support (default is enabled)]),
     [],
-    [ac_cv_enable_wamr=yes]
+    [ac_cv_enable_wamr=no]
   )
   AS_IF(
     [test "x${ac_cv_enable_wamr}" != xno],
@@ -72,7 +72,7 @@ AC_DEFUN([AX_CHECK_WASMEDGE], [
     [wasmedge],
     AS_HELP_STRING([--with-wasmedge],[compile with wasmedge support (default is enabled)]),
     [],
-    [ac_cv_enable_wasmedge=yes]
+    [ac_cv_enable_wasmedge=no]
   )
   AS_IF(
     [test "x${ac_cv_enable_wasmedge}" != xno],
@@ -122,7 +122,7 @@ AC_DEFUN([AX_CHECK_WASMER], [
     [wasmer],
     AS_HELP_STRING([--with-wasmer],[compile with wasmer support (default is enabled)]),
     [],
-    [ac_cv_enable_wasmer=yes]
+    [ac_cv_enable_wasmer=no]
   )
   AS_IF(
     [test "x${ac_cv_enable_wasmer}" != xno],
@@ -172,7 +172,7 @@ AC_DEFUN([AX_CHECK_WASMTIME], [
     [wasmtime],
     AS_HELP_STRING([--with-wasmtime],[compile with wasmtime support (default is enabled)]),
     [],
-    [ac_cv_enable_wasmtime=yes]
+    [ac_cv_enable_wasmtime=no]
   )
   AS_IF(
     [test "x${ac_cv_enable_wasmtime}" != xno],
