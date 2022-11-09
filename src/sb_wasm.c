@@ -61,6 +61,20 @@ static sb_wasm_sandbox **sandboxs CK_CC_CACHELINE;
 static sb_wasm_vm *wasm_vm;
 static sb_wasm_module *wasm_module;
 
+sb_wasm_runtime_t wasm_runtime_name_to_type(const char *runtime) {
+    if (!strcmp(runtime, "wamr")) {
+        return SB_WASM_RUNTIME_WAMR;
+    } else if (!strcmp(runtime, "wasmedge")) {
+        return SB_WASM_RUNTIME_WASMEDGE;
+    } else if (!strcmp(runtime, "wasmer")) {
+        return SB_WASM_RUNTIME_WASMER;
+    } else if (!strcmp(runtime, "wasmtime")) {
+        return SB_WASM_RUNTIME_WASMTIME;
+    } else {
+        return SB_WASM_RUNTIME_UNKNOWN;
+    }
+}
+
 sb_test_t *sb_load_wasm(const char *testname, const char *runtime)
 {
   log_text(LOG_INFO, "load wasm using runtime: %s", runtime);
