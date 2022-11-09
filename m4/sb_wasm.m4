@@ -48,7 +48,7 @@ AC_DEFUN([AX_CHECK_WAMR], [
         [test "x${WAMR}" != x],
         [
           WAMR_CFLAGS="-I${WAMR_HOME}/include"
-          WAMR_LDFLAGS="-L${WAMR_HOME}/lib"
+          WAMR_LDFLAGS="-L${WAMR_HOME}/lib -Wl,-rpath=${WAMR_HOME}/lib"
           WAMR_LIBS="-liwasm"
           AC_SUBST([WAMR_HOME])
           AC_SUBST([WAMR])
