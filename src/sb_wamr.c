@@ -32,14 +32,15 @@
 typedef struct
 {
     uint8_t *wamr_file_buffer;
-    wasm_module_t *wamr_module;
-    wasm_exec_env_t *wamr_exec_env;
+    wasm_module_t wamr_module;
+    wasm_module_inst_t wamr_module_inst;
+    wasm_exec_env_t wamr_exec_env;
 } sb_wamr_module_context;
 
 typedef struct
 {
-    wasm_module_inst_t *wamr_module_inst;
-    wasm_exec_env_t *wamr_exec_env;
+    wasm_module_inst_t wamr_module_inst;
+    wasm_exec_env_t wamr_exec_env;
 } sb_wamr_sandbox_context;
 
 static RuntimeInitArgs init_args;
@@ -78,15 +79,42 @@ static int sb_wamr_destroy(void) {
     return 0;
 }
 
+static int sb_wamr_call_function(void *context, const char *fname, int thread_id) {
+    sb_wamr_sandbox_context *sandbox_context = (sb_wamr_sandbox_context *)context;
+    wasm_val_t args[1], results[1];
+    args[0].kind = WASM_I32;
+    args[0].of.i32 = thread_id;
+
+    wasm_function_inst_t func = wasm_runtime_lookup_function(sandbox_context->wamr_module_inst, fname, NULL);
+    if (func == NULL) {
+        log_text(LOG_FATAL, "function %s not found in wasm module\n", fname);
+        return -1;
+    } else {
+        /* call the WASM function */
+        if (wasm_runtime_call_wasm_a(sandbox_context->wamr_exec_env, func, 1, results, 1, args)) {
+            return 0;
+        } else {
+            /* exception is thrown if call fails */
+            log_text(LOG_FATAL, "%s\n", wasm_runtime_get_exception(sandbox_context->wamr_module_inst));
+            return -1;
+        }
+    }
+}
+
 sb_wasm_sandbox *sb_wamr_create_sandbox(void *context, int thread_id) {
     sb_wamr_module_context *module_context = (sb_wamr_module_context *)context;
-    sb_wamr_sandbox_context *sandbox_context = malloc(sizeof(sandbox_context));
+    sb_wamr_sandbox_context *sandbox_context = malloc(sizeof(sb_wamr_sandbox_context));
     sandbox_context->wamr_exec_env = wasm_runtime_spawn_exec_env(module_context->wamr_exec_env);
+    sb_wasm_sandbox *sandbox = malloc(sizeof(sb_wasm_sandbox));
+    snprintf(sandbox->name, sizeof(sandbox->name), "wamr-sandbox-%d", thread_id);
+    sandbox->context = sandbox_context;
+    sandbox->call_function = sb_wamr_call_function;
+    return sandbox;
 };
 
-bool sb_wamr_function_available(void *context, const char *fname) {
+static bool sb_wamr_function_available(void *context, const char *fname) {
     sb_wamr_module_context *module_context = (sb_wamr_module_context *)context;
-    wasm_function_inst_t func = wasm_runtime_lookup_function(module_context->wamr_module, fname, NULL);
+    wasm_function_inst_t func = wasm_runtime_lookup_function(module_context->wamr_module_inst, fname, NULL);
     if (func == NULL) {
         return false;
     } else {
@@ -106,16 +134,28 @@ static sb_wasm_module *sb_wamr_load_module(const char *filepath) {
         goto error;
     }
 
-    wasm_module_t *wamr_module = wasm_runtime_load(module_context->wamr_file_buffer, size, error_buffer, sizeof(error_buffer));
+    wasm_module_t wamr_module = wasm_runtime_load(module_context->wamr_file_buffer, size, error_buffer, sizeof(error_buffer));
     if (wamr_module == NULL) {
         log_text(LOG_FATAL, "load wasm module failed, %s", error_buffer);
         goto error;
     }
 
-    wasm_exec_env_t *wamr_exec_env = wasm_runtime_create_exec_env(wamr_module, WAMR_DEFAULT_STACK_SIZE);
+    wasm_module_inst_t wamr_module_inst = wasm_runtime_instantiate(wamr_module,
+                                                                   WAMR_DEFAULT_STACK_SIZE, WAMR_DEFAULT_HEAP_SIZE,
+                                                                   error_buffer, sizeof(error_buffer));
+    if (wamr_module_inst == NULL) {
+        log_text(LOG_FATAL, "instantiate wasm module failed, %s", error_buffer);
+        goto error;
+    }
+    wasm_exec_env_t wamr_exec_env = wasm_runtime_create_exec_env(wamr_module_inst, WAMR_DEFAULT_STACK_SIZE);
+    if (wamr_exec_env == NULL) {
+        log_text(LOG_FATAL, "create wasm execute environment failed");
+        goto error;
+    }
 
     module_context->wamr_file_buffer = wamr_file_buffer;
     module_context->wamr_module = wamr_module;
+    module_context->wamr_module_inst = wamr_module_inst;
     module_context->wamr_exec_env = wamr_exec_env;
 
     sb_wasm_module *wasm_module = malloc(sizeof(sb_wasm_module));
