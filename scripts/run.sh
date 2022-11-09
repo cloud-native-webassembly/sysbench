@@ -1,1 +1,1 @@
-./src/sysbench --type=wasm --wasm-runtime=wamr src/wasm/sb_wasm_test.wasm run
+./src/sysbench --type=wasm --wasm-runtime=wamr --verbosity=5 src/wasm/sb_wasm_test.wasm run

@@ -1484,7 +1484,7 @@ int main(int argc, char *argv[])
   print_header();
 
   const char *test_type = sb_get_value_string("type");
-  printf("run test type: %s\n", test_type);
+  log_text(LOG_DEBUG, "run test type: %s", test_type);
   if (sb_globals.testname != NULL && strcmp(sb_globals.testname, "-"))
   {
     /* Is it a built-in test name? */

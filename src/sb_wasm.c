@@ -75,101 +75,94 @@ sb_wasm_runtime_t wasm_runtime_name_to_type(const char *runtime) {
     }
 }
 
-sb_test_t *sb_load_wasm(const char *testname, const char *runtime)
-{
-  log_text(LOG_INFO, "load wasm using runtime: %s", runtime);
-  sb_wasm_runtime_t runtime_t = wasm_runtime_name_to_type(runtime);
-  switch (runtime_t)
-  {
+sb_test_t *sb_load_wasm(const char *testname, const char *runtime) {
+    log_text(LOG_DEBUG, "load wasm using runtime: %s", runtime);
+    sb_wasm_runtime_t runtime_t = wasm_runtime_name_to_type(runtime);
+    switch (runtime_t) {
 #ifdef HAVE_WAMR
-  case SB_WASM_RUNTIME_WAMR:
-    wasm_vm = create_wamr_vm();
-    break;
+        case SB_WASM_RUNTIME_WAMR:
+            wasm_vm = create_wamr_vm();
+            break;
 #endif
 #ifdef HAVE_WASMEDGE
-  case SB_WASM_RUNTIME_WASMEDGE:
-    wasm_vm = create_wasmedge_vm();
-    break;
+        case SB_WASM_RUNTIME_WASMEDGE:
+            wasm_vm = create_wasmedge_vm();
+            break;
 #endif
 #ifdef HAVE_WASMER
-  case SB_WASM_RUNTIME_WASMER:
-    wasm_vm = create_wasmer_vm();
-    break;
+        case SB_WASM_RUNTIME_WASMER:
+            wasm_vm = create_wasmer_vm();
+            break;
 #endif
 #ifdef HAVE_WASMTIME
-  case SB_WASM_RUNTIME_WASMTIME:
-    wasm_vm = create_wasmtime_vm();
-    break;
+        case SB_WASM_RUNTIME_WASMTIME:
+            wasm_vm = create_wasmtime_vm();
+            break;
 #endif
-  default:
-    log_text(LOG_FATAL, "unsupported wasm runtime: %s", runtime);
-    goto error;
-    break;
-  }
-  if (testname != NULL)
-  {
-    char *tmp = strdup(testname);
-    sbtest.sname = strdup(basename(tmp));
-    sbtest.lname = tmp;
-  }
-  else
-  {
-    log_text(LOG_FATAL, "no wasm file name provided");
-    goto error;
-  }
-
-  sbtest.ops = wasm_ops;
-  wasm_vm->init();
-  log_text(LOG_INFO, "load wasm module from file %s", sbtest.lname);
-  wasm_module = wasm_vm->load_module(sbtest.lname);
-
-  sandboxs = (sb_wasm_sandbox **)calloc(sb_globals.threads, sizeof(sb_wasm_sandbox *));
-  if (sandboxs == NULL)
-    goto error;
-
-  return &sbtest;
-
-error:
-  return NULL;
-}
-
-void sb_wasm_done(void)
-{
-  if (sbtest.args != NULL)
-  {
-    for (size_t i = 0; sbtest.args[i].name != NULL; i++)
-    {
-      xfree(sbtest.args[i].name);
-      xfree(sbtest.args[i].desc);
-      xfree(sbtest.args[i].value);
+        default:
+            log_text(LOG_FATAL, "unsupported wasm runtime: %s", runtime);
+            goto error;
+            break;
+    }
+    if (testname != NULL) {
+        char *tmp = strdup(testname);
+        sbtest.sname = strdup(basename(tmp));
+        sbtest.lname = tmp;
+    } else {
+        log_text(LOG_FATAL, "no wasm file name provided");
+        goto error;
     }
 
-    xfree(sbtest.args);
-  }
+    sbtest.ops = wasm_ops;
+    wasm_vm->init();
+    log_text(LOG_INFO, "load wasm module from file %s", sbtest.lname);
+    wasm_module = wasm_vm->load_module(sbtest.lname);
+    if (wasm_module == NULL) {
+        log_text(LOG_FATAL, "load wasm module failed");
+        goto error;
+    }
 
-  xfree(sbtest.sname);
-  xfree(sbtest.lname);
+    sandboxs = (sb_wasm_sandbox **)calloc(sb_globals.threads, sizeof(sb_wasm_sandbox *));
+    if (sandboxs == NULL)
+        goto error;
+
+    return &sbtest;
+
+error:
+    return NULL;
 }
 
-static sb_event_t sb_wasm_op_next_event(int thread_id)
-{
-  sb_event_t req;
+void sb_wasm_done(void) {
+    if (sbtest.args != NULL) {
+        for (size_t i = 0; sbtest.args[i].name != NULL; i++) {
+            xfree(sbtest.args[i].name);
+            xfree(sbtest.args[i].desc);
+            xfree(sbtest.args[i].value);
+        }
 
-  (void)thread_id; /* unused */
+        xfree(sbtest.args);
+    }
 
-  req.type = SB_REQ_TYPE_SCRIPT;
-
-  return req;
+    xfree(sbtest.sname);
+    xfree(sbtest.lname);
 }
 
-int sb_wasm_op_execute_event(sb_event_t *r, int thread_id)
-{
-  sb_wasm_sandbox *sandbox = sandboxs[thread_id];
-  if (sandbox->call_function(sandbox->context, EVENT_FUNC, thread_id))
-  {
-    return 1;
-  }
-  return 0;
+static sb_event_t sb_wasm_op_next_event(int thread_id) {
+    sb_event_t req;
+
+    (void)thread_id; /* unused */
+
+    req.type = SB_REQ_TYPE_SCRIPT;
+
+    return req;
+}
+
+int sb_wasm_op_execute_event(sb_event_t *r, int thread_id) {
+    sb_wasm_sandbox *sandbox = sandboxs[thread_id];
+    if (sandbox->call_function(sandbox->context, EVENT_FUNC, thread_id)) {
+        return 1;
+    }
+    return 0;
 }
 
 bool sb_wasm_custom_command_defined(const char *name) {}
@@ -178,40 +171,32 @@ int sb_wasm_report_thread_init(void) {}
 
 void sb_wasm_report_thread_done(void *data) {}
 
-bool sb_wasm_loaded(void)
-{
-  return true;
+bool sb_wasm_loaded(void) {
+    return true;
 }
 
-static int sb_wasm_op_init(void)
-{
-  return 0;
+static int sb_wasm_op_init(void) {
+    return 0;
 }
-static int sb_wasm_op_done(void)
-{
-  return 0;
+static int sb_wasm_op_done(void) {
+    return 0;
 }
-static int sb_wasm_op_thread_init(int thread_id)
-{
-  sb_wasm_sandbox *sandbox = wasm_module->create_sandbox(wasm_module->context, thread_id);
-  if (sandbox == NULL)
-    return 1;
+static int sb_wasm_op_thread_init(int thread_id) {
+    sb_wasm_sandbox *sandbox = wasm_module->create_sandbox(wasm_module->context, thread_id);
+    if (sandbox == NULL)
+        return 1;
 
-  sandboxs[thread_id] = sandbox;
+    sandboxs[thread_id] = sandbox;
 
-  return 0;
+    return 0;
 }
-static int sb_wasm_op_thread_run(int thread_id)
-{
-  return 0;
+static int sb_wasm_op_thread_run(int thread_id) {
+    return 0;
 }
-static int sb_wasm_op_thread_done(int thread_id)
-{
-  return 0;
+static int sb_wasm_op_thread_done(int thread_id) {
+    return 0;
 }
-static void sb_wasm_report_intermediate(sb_stat_t *stat)
-{
+static void sb_wasm_report_intermediate(sb_stat_t *stat) {
 }
-static void sb_wasm_report_cumulative(sb_stat_t *stat)
-{
+static void sb_wasm_report_cumulative(sb_stat_t *stat) {
 }
