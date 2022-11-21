@@ -54,7 +54,7 @@ static bool sb_wamr_init(void) {
     } else {
         wamr_heap_size = atol(wamr_heap_size_var);
     }
-    log_text(LOG_DEBUG, "wamr heap size: %l", wamr_heap_size);
+    log_text(LOG_DEBUG, "wamr heap size: %ld", wamr_heap_size);
     init_args.mem_alloc_type = Alloc_With_Pool;
     init_args.mem_alloc_option.pool.heap_buf = malloc(wamr_heap_size);
     init_args.mem_alloc_option.pool.heap_size = wamr_heap_size;
@@ -67,7 +67,7 @@ static bool sb_wamr_init(void) {
         wamr_max_thread_num = atoi(wamr_max_thread_var);
     }
     init_args.max_thread_num = wamr_max_thread_num;
-    log_text(LOG_DEBUG, "wamr max thread num: %l", wamr_max_thread_num);
+    log_text(LOG_DEBUG, "wamr max thread num: %ld", wamr_max_thread_num);
 
     /* initialize runtime environment with user configurations*/
     if (!wasm_runtime_full_init(&init_args)) {
@@ -139,7 +139,7 @@ static sb_wasm_module *sb_wamr_load_module(const char *filepath) {
 
     log_text(LOG_INFO, "load %d bytes from %s", size, filepath);
 
-    wasm_module_t wamr_module = wasm_runtime_load(module_context->wamr_file_buffer, size, error_buffer, sizeof(error_buffer));
+    wasm_module_t wamr_module = wasm_runtime_load(wamr_file_buffer, size, error_buffer, sizeof(error_buffer));
     if (wamr_module == NULL) {
         log_text(LOG_FATAL, "load wamr module failed [%s]", error_buffer);
         goto error;
