@@ -83,7 +83,7 @@ esac
 if test "$GCC" = "yes"
 then
   CFLAGS="-ggdb3 ${CFLAGS}"
-  DEBUG_CFLAGS="-O0"
+  DEBUG_CFLAGS="-O0 -g"
   OPTIMIZE_CFLAGS="-O3 -funroll-loops"
   GCOV_CFLAGS="-O0 --coverage"
   GCOV_LDFLAGS="-coverage"
