@@ -105,14 +105,18 @@ static int sb_wamr_call_function(void *context, const char *fname, int thread_id
 }
 
 sb_wasm_sandbox *sb_wamr_create_sandbox(void *context, int thread_id) {
+    char error_buffer[128];
     sb_wamr_module_context *module_context = (sb_wamr_module_context *)context;
     sb_wamr_sandbox_context *sandbox_context = malloc(sizeof(sb_wamr_sandbox_context));
     sandbox_context->wamr_exec_env = wasm_runtime_spawn_exec_env(module_context->wamr_exec_env);
+    sandbox_context->wamr_module_inst = get_module_inst(sandbox_context->wamr_exec_env);
     sb_wasm_sandbox *sandbox = malloc(sizeof(sb_wasm_sandbox));
     snprintf(sandbox->name, sizeof(sandbox->name), "wamr-sandbox-%d", thread_id);
     sandbox->context = sandbox_context;
     sandbox->call_function = sb_wamr_call_function;
     return sandbox;
+error:
+    return NULL;
 };
 
 static bool sb_wamr_function_available(void *context, const char *fname) {
