@@ -23,8 +23,6 @@
 #include "sysbench.h"
 #include "sb_wasm.h"
 
-sb_test_t *sb_load_wasmedge(const char *testname, int argc, char *argv[]);
-
 void sb_wasmedge_done(void);
 
 bool sb_wasmedge_custom_command_defined(const char *name);

@@ -23,8 +23,6 @@
 #include "sysbench.h"
 #include "sb_wasm.h"
 
-sb_test_t *sb_load_wamr(const char *testname, int argc, char *argv[]);
-
 void sb_wamr_done(void);
 
 bool sb_wamr_custom_command_defined(const char *name);

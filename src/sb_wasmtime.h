@@ -23,8 +23,6 @@
 #include "sysbench.h"
 #include "sb_wasm.h"
 
-sb_test_t *sb_load_wasmtime(const char *testname, int argc, char *argv[]);
-
 void sb_wasmtime_done(void);
 
 bool sb_wasmtime_custom_command_defined(const char *name);

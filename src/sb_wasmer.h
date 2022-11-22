@@ -23,8 +23,6 @@
 #include "sysbench.h"
 #include "sb_wasm.h"
 
-sb_test_t *sb_load_wasmer(const char *testname, int argc, char *argv[]);
-
 void sb_wasmer_done(void);
 
 bool sb_wasmer_custom_command_defined(const char *name);
