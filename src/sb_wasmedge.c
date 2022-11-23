@@ -61,10 +61,10 @@ static int wasmedge_call_function(WasmEdge_VMContext *context, const char *fname
   WasmEdge_StringDelete(func_name);
   if (WasmEdge_ResultOK(res)) {
     // printf("Get the result: %d\n", WasmEdge_ValueGetI32(returns[0]));
-    return 0;
+    return SUCCESS;
   } else {
     fprintf(stderr, "call function [%s] failed: %s\n", fname, WasmEdge_ResultGetMessage(res));
-    return 1;
+    return FAILURE;
   }
 }
 
