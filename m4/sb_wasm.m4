@@ -97,7 +97,7 @@ AC_DEFUN([AX_CHECK_WASMEDGE], [
         [test "x${WASMEDGE}" != x],
         [
           WASMEDGE_CFLAGS="-I${WASMEDGE_HOME}/include"
-          WASMEDGE_LDFLAGS="-L${WASMEDGE_HOME}/lib64"
+          WASMEDGE_LDFLAGS="-L${WASMEDGE_HOME}/lib64 -Wl,-rpath=${WASMEDGE_HOME}/lib64"
           WASMEDGE_LIBS="-lwasmedge"
           AC_SUBST([WASMEDGE_HOME])
           AC_SUBST([WASMEDGE])
