@@ -31,8 +31,6 @@
 static int sb_wasm_op_init(void);
 static int sb_wasm_op_done(void);
 static int sb_wasm_op_thread_init(int);
-static int sb_wasm_op_thread_run(int);
-static int sb_wasm_op_thread_done(int);
 
 static sb_event_t sb_wasm_op_next_event(int thread_id);
 static int sb_wasm_op_execute_event(sb_event_t *r, int thread_id);
@@ -40,21 +38,13 @@ static int sb_wasm_op_execute_event(sb_event_t *r, int thread_id);
 static sb_operations_t wasm_ops = {
     .init = sb_wasm_op_init,
     .thread_init = sb_wasm_op_thread_init,
-    .thread_done = sb_wasm_op_thread_done,
     .done = sb_wasm_op_done,
     .next_event = sb_wasm_op_next_event,
-    .execute_event = sb_wasm_op_execute_event
-
-};
-
-/* wasm test commands */
-static int sb_wasm_cmd_prepare(void);
-static int sb_wasm_cmd_cleanup(void);
-static int sb_wasm_cmd_help(void);
+    .execute_event = sb_wasm_op_execute_event};
 
 static sb_test_t sbtest CK_CC_CACHELINE;
 static sb_wasm_sandbox **sandboxs CK_CC_CACHELINE;
-static sb_wasm_vm *wasm_vm;
+static sb_wasm_runtime *wasm_vm;
 static sb_wasm_module *wasm_module;
 
 sb_wasm_runtime_t wasm_runtime_name_to_type(const char *runtime) {
@@ -142,14 +132,34 @@ static sb_event_t sb_wasm_op_next_event(int thread_id) {
 }
 
 int sb_wasm_op_execute_event(sb_event_t *r, int thread_id) {
-    sb_wasm_sandbox *sandbox = sandboxs[thread_id];
-    return sandbox->function_apply(sandbox->context, EVENT_FUNC, thread_id);
+    if (r != NULL) {
+        sb_wasm_sandbox *sandbox = sandboxs[thread_id];
+        return sandbox->function_apply(sandbox->context, EVENT_FUNC, thread_id);
+    } else {
+        return FAILURE;
+    }
 }
-
-bool sb_wasm_custom_command_defined(const char *name) {}
 
 bool sb_wasm_loaded(void) {
     return true;
+}
+
+static sb_wasm_module *sb_wasm_load_module(const char *filepath) {
+    uint32_t wasm_buffer_size = 0;
+    uint8_t *wasm_buffer = sb_load_file_to_buffer(filepath, &wasm_buffer_size);
+    if (wasm_buffer == NULL) {
+        log_text(LOG_FATAL, "load wasm module file[%s] into buffer failed", filepath);
+        goto error;
+    }
+
+    log_text(LOG_INFO, "load %d bytes from %s", wasm_buffer_size, filepath);
+
+    sb_wasm_module *wasm_module = malloc(sizeof(sb_wasm_module));
+    wasm_module->wasm_buffer = wasm_buffer;
+    wasm_module->wasm_buffer_size = wasm_buffer_size;
+    return wasm_module;
+error:
+    return NULL;
 }
 
 static int sb_wasm_op_init(void) {
@@ -158,7 +168,12 @@ static int sb_wasm_op_init(void) {
         goto error;
     }
     log_text(LOG_INFO, "load wasm module from file %s", sbtest.lname);
-    wasm_module = wasm_vm->load_module(sbtest.lname);
+    if (wasm_vm->load_module != NULL) {
+        // use runtime customized load module
+        wasm_module = wasm_vm->load_module(sbtest.lname);
+    } else {
+        wasm_module = sb_wasm_load_module(sbtest.lname);
+    }
     if (wasm_module == NULL) {
         log_text(LOG_FATAL, "load wasm module failed");
         goto error;
@@ -175,19 +190,12 @@ static int sb_wasm_op_done(void) {
     return SUCCESS;
 }
 static int sb_wasm_op_thread_init(int thread_id) {
-    sb_wasm_sandbox *sandbox = wasm_module->create_sandbox(wasm_module->context, thread_id);
+    sb_wasm_sandbox *sandbox = wasm_vm->create_sandbox(wasm_module, thread_id);
     if (sandbox == NULL) {
-        log_text(LOG_FATAL, "create wasm sandbox for thread %d failed");
+        log_text(LOG_FATAL, "create wasm sandbox for thread %d failed", thread_id);
         return FAILURE;
     }
     sandboxs[thread_id] = sandbox;
 
     return SUCCESS;
 }
-static int sb_wasm_op_thread_run(int thread_id) {
-    return SUCCESS;
-}
-static int sb_wasm_op_thread_done(int thread_id) {
-    return SUCCESS;
-}
-

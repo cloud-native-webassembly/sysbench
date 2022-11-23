@@ -39,7 +39,7 @@ static int sb_wasmtime_init(void) {}
 static int sb_wasmtime_destroy(void) {}
 static sb_wasm_module sb_wasmtime_load_module(const char *filepath) {}
 
-static sb_wasm_vm wasmtime_vm = {
+static sb_wasm_runtime wasmtime_vm = {
     .runtime_type = SB_WASM_RUNTIME_WASMTIME,
     .runtime_name = "wasmtime",
     .init = sb_wasmtime_init,

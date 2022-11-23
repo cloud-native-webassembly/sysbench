@@ -42,47 +42,47 @@ typedef struct
 {
 } sb_wasm_function;
 
-typedef int sb_wasm_function_apply(void *context, const char *fname, int thread_id);
-typedef bool sb_wasm_function_available(void *context, const char *fname);
-
+typedef int (*sb_wasm_function_apply_func)(void *context, const char *fname, int thread_id);
+typedef bool (*sb_wasm_function_available_func)(void *context, const char *fname);
+typedef void *sb_wasm_sandbox_context_t;
 typedef struct
 {
     char name[24];
-    void *context;
-    sb_wasm_function_apply *function_apply;
-    sb_wasm_function_available *function_available;
+    sb_wasm_sandbox_context_t context;
+    sb_wasm_function_apply_func function_apply;
+    sb_wasm_function_available_func function_available;
 } sb_wasm_sandbox; /* sandbox is an instance of module */
 
-typedef sb_wasm_sandbox *sb_wasm_create_sandbox(void *context, int thread_id);
+typedef void *sb_wasm_module_context_t;
 
 typedef struct
 {
-    void *context;
-    sb_wasm_create_sandbox *create_sandbox;
+    uint8_t *wasm_buffer;
+    uint32_t wasm_buffer_size;
+    sb_wasm_module_context_t context;
 } sb_wasm_module; /* module is an instance of module file */
 
-typedef bool sb_wasm_init(void);
-typedef int sb_wasm_prepare(void);
-typedef int sb_wasm_destroy(void);
-typedef sb_wasm_module *sb_wasm_load_module(const char *filepath);
-
+typedef bool (*sb_wasm_init_func)(void);
+typedef int (*sb_wasm_prepare_func)(void);
+typedef int (*sb_wasm_destroy_func)(void);
+typedef sb_wasm_module *(*sb_wasm_load_module_func)(const char *filepath);
+typedef sb_wasm_sandbox *(*sb_wasm_create_sandbox_func)(sb_wasm_module *module, int thread_id);
 typedef struct
 {
     sb_wasm_runtime_t runtime_type;
     const char *runtime_name;
-    sb_wasm_init *init;
-    sb_wasm_prepare *prepare;
-    sb_wasm_destroy *destroy;
-    sb_wasm_load_module *load_module;
-} sb_wasm_vm;
+    sb_wasm_init_func init;
+    sb_wasm_prepare_func prepare;
+    sb_wasm_destroy_func destroy;
+    sb_wasm_load_module_func load_module;
+    sb_wasm_create_sandbox_func create_sandbox;
+} sb_wasm_runtime;
 
 sb_wasm_runtime_t wasm_runtime_name_to_type(const char *runtime);
 
 sb_test_t *sb_load_wasm(const char *testname, const char *runtime);
 
 void sb_wasm_done(void);
-
-bool sb_wasm_custom_command_defined(const char *name);
 
 int sb_wasm_report_thread_init(void);
 
