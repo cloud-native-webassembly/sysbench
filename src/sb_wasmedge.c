@@ -31,12 +31,14 @@ typedef struct {
     WasmEdge_VMContext *vm_context;
 } sb_wasmedge_sandbox_context;
 
-static WasmEdge_VMContext **contexts CK_CC_CACHELINE;
-
 static bool sb_wasmedge_function_available(void *context, const char *fname) {
     sb_wasmedge_sandbox_context *sandbox_context = (sb_wasmedge_sandbox_context *)context;
     WasmEdge_VMContext *vm_context = sandbox_context->vm_context;
-    if (func == NULL) {
+    WasmEdge_String module_name = WasmEdge_StringCreateByCString(fname);
+    WasmEdge_String func_name = WasmEdge_StringCreateByCString(fname);
+    WasmEdge_FunctionTypeContext *func_context = WasmEdge_VMGetFunctionTypeRegistered(vm_context, module_name, func_name);
+
+    if (func_context == NULL) {
         return false;
     } else {
         return true;
@@ -89,7 +91,7 @@ static sb_wasm_sandbox *sb_wasmedge_create_sandbox(sb_wasm_module *module, int t
         goto error;
     }
 
-    res = WasmEdge_VMLoadWasmFromBuffer(module->wasm_buffer, module->wasm_buffer_size);
+    res = WasmEdge_VMLoadWasmFromBuffer(sandbox_context->vm_context, module->wasm_buffer, module->wasm_buffer_size);
     if (!WasmEdge_ResultOK(res)) {
         log_text(LOG_FATAL, "load wasm from buffer failed");
         goto error;
@@ -114,13 +116,13 @@ static sb_wasm_sandbox *sb_wasmedge_create_sandbox(sb_wasm_module *module, int t
 error:
     if (sandbox_context != NULL) {
         if (sandbox_context->config_context != NULL) {
-            WasmEdge_ConfigureDelete(module_context->config_context);
+            WasmEdge_ConfigureDelete(sandbox_context->config_context);
         }
         if (sandbox_context->store_context != NULL) {
-            WasmEdge_StoreDelete(module_context->store_context);
+            WasmEdge_StoreDelete(sandbox_context->store_context);
         }
         if (sandbox_context->vm_context != NULL) {
-            WasmEdge_VMDelete(module_context->vm_context);
+            WasmEdge_VMDelete(sandbox_context->vm_context);
         }
         free(sandbox_context);
     }
