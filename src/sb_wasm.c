@@ -114,18 +114,6 @@ sb_test_t *sb_load_wasm(const char *testname, const char *runtime) {
     }
 
     sbtest.ops = wasm_ops;
-    wasm_vm->init();
-    log_text(LOG_INFO, "load wasm module from file %s", sbtest.lname);
-    wasm_module = wasm_vm->load_module(sbtest.lname);
-    if (wasm_module == NULL) {
-        log_text(LOG_FATAL, "load wasm module failed");
-        goto error;
-    }
-
-    sandboxs = (sb_wasm_sandbox **)calloc(sb_globals.threads, sizeof(sb_wasm_sandbox *));
-    if (sandboxs == NULL)
-        goto error;
-
     return &sbtest;
 
 error:
@@ -159,10 +147,7 @@ static sb_event_t sb_wasm_op_next_event(int thread_id) {
 
 int sb_wasm_op_execute_event(sb_event_t *r, int thread_id) {
     sb_wasm_sandbox *sandbox = sandboxs[thread_id];
-    if (sandbox->call_function(sandbox->context, EVENT_FUNC, thread_id)) {
-        return 1;
-    }
-    return 0;
+    return sandbox->function_apply(sandbox->context, EVENT_FUNC, thread_id);
 }
 
 bool sb_wasm_custom_command_defined(const char *name) {}
@@ -176,25 +161,42 @@ bool sb_wasm_loaded(void) {
 }
 
 static int sb_wasm_op_init(void) {
-    return 0;
+    if (!wasm_vm->init()) {
+        log_text(LOG_FATAL, "init wasm vm failed");
+        goto error;
+    }
+    log_text(LOG_INFO, "load wasm module from file %s", sbtest.lname);
+    wasm_module = wasm_vm->load_module(sbtest.lname);
+    if (wasm_module == NULL) {
+        log_text(LOG_FATAL, "load wasm module failed");
+        goto error;
+    }
+
+    sandboxs = (sb_wasm_sandbox **)calloc(sb_globals.threads, sizeof(sb_wasm_sandbox *));
+    if (sandboxs == NULL)
+        goto error;
+    return SUCCESS;
+error:
+    return FAILURE;
 }
 static int sb_wasm_op_done(void) {
-    return 0;
+    return SUCCESS;
 }
 static int sb_wasm_op_thread_init(int thread_id) {
     sb_wasm_sandbox *sandbox = wasm_module->create_sandbox(wasm_module->context, thread_id);
-    if (sandbox == NULL)
-        return 1;
-
+    if (sandbox == NULL) {
+        log_text(LOG_FATAL, "create wasm sandbox for thread %d failed");
+        return FAILURE;
+    }
     sandboxs[thread_id] = sandbox;
 
-    return 0;
+    return SUCCESS;
 }
 static int sb_wasm_op_thread_run(int thread_id) {
-    return 0;
+    return SUCCESS;
 }
 static int sb_wasm_op_thread_done(int thread_id) {
-    return 0;
+    return SUCCESS;
 }
 static void sb_wasm_report_intermediate(sb_stat_t *stat) {
 }

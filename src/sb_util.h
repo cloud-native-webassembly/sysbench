@@ -118,4 +118,16 @@ size_t sb_getpagesize(void);
 
 #define xfree(ptr) ({ if ((ptr) != NULL) free((void *) ptr); ptr = NULL; })
 
+#define SB_SET_ENV_CONFIG(V, N) {\
+    const char *N##_VAR = getenv(#N); \
+    if (N##_VAR == NULL) { \
+        V = N; \
+    } else { \
+        V = atol(N##_VAR); \
+    } \
+}
+
+#define	FAILURE	1
+#define	SUCCESS	0
+
 #endif /* SB_UTIL_H */

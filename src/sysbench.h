@@ -37,6 +37,7 @@
 #include "sb_options.h"
 #include "sb_timer.h"
 #include "sb_logger.h"
+#include "sb_util.h"
 
 #include "tests/sb_cpu.h"
 #include "tests/sb_fileio.h"
