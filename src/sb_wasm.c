@@ -33,8 +33,6 @@ static int sb_wasm_op_done(void);
 static int sb_wasm_op_thread_init(int);
 static int sb_wasm_op_thread_run(int);
 static int sb_wasm_op_thread_done(int);
-static void sb_wasm_report_intermediate(sb_stat_t *);
-static void sb_wasm_report_cumulative(sb_stat_t *);
 
 static sb_event_t sb_wasm_op_next_event(int thread_id);
 static int sb_wasm_op_execute_event(sb_event_t *r, int thread_id);
@@ -43,8 +41,6 @@ static sb_operations_t wasm_ops = {
     .init = sb_wasm_op_init,
     .thread_init = sb_wasm_op_thread_init,
     .thread_done = sb_wasm_op_thread_done,
-    .report_intermediate = sb_wasm_report_intermediate,
-    .report_cumulative = sb_wasm_report_cumulative,
     .done = sb_wasm_op_done,
     .next_event = sb_wasm_op_next_event,
     .execute_event = sb_wasm_op_execute_event
@@ -152,10 +148,6 @@ int sb_wasm_op_execute_event(sb_event_t *r, int thread_id) {
 
 bool sb_wasm_custom_command_defined(const char *name) {}
 
-int sb_wasm_report_thread_init(void) {}
-
-void sb_wasm_report_thread_done(void *data) {}
-
 bool sb_wasm_loaded(void) {
     return true;
 }
@@ -198,7 +190,4 @@ static int sb_wasm_op_thread_run(int thread_id) {
 static int sb_wasm_op_thread_done(int thread_id) {
     return SUCCESS;
 }
-static void sb_wasm_report_intermediate(sb_stat_t *stat) {
-}
-static void sb_wasm_report_cumulative(sb_stat_t *stat) {
-}
+

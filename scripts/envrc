@@ -1,0 +1,5 @@
+export LD_LIBRARY_PATH=${LLVM_HOME}/lib64:${GCC_HOME}/lib64
+export PATH=${GCC_HOME}/bin:${PATH}
+export LANG=C 
+export SYSBENCH="./src/sysbench --verbosity=5 --thread-init-timeout=0"
+export WAMR_OPTS="--type=wasm --wasm-runtime=wamr"
