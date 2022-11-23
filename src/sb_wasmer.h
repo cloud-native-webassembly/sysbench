@@ -33,4 +33,4 @@ void sb_wasmer_report_thread_done(void *);
 
 bool sb_wasmer_loaded(void);
 
-sb_wasm_vm *create_wasmer_vm(void);
+sb_wasm_runtime *create_wasmer_vm(void);

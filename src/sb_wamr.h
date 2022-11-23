@@ -23,18 +23,7 @@
 #include "sysbench.h"
 #include "sb_wasm.h"
 
-void sb_wamr_done(void);
-
-bool sb_wamr_custom_command_defined(const char *name);
-
-int sb_wamr_report_thread_init(void);
-
-void sb_wamr_report_thread_done(void *);
-
-bool sb_wamr_loaded(void);
-
-sb_wasm_vm *create_wamr_vm(void);
-sb_wasm_sandbox *sb_wamr_create_sandbox(void *context, int thread_id);
+sb_wasm_runtime *create_wamr_vm(void);
 
 #define WAMR_STACK_SIZE 8092
 #define WAMR_HEAP_SIZE 1024 * 1024

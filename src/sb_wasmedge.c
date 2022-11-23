@@ -25,22 +25,9 @@
 #include "sb_wasm.h"
 #include "sb_wasmedge.h"
 
-static bool sb_wasmedge_init(void);
-static int sb_wasmedge_destroy(void) {}
-static sb_wasm_module *sb_wasmedge_load_module(const char *filepath);
-
-static sb_wasm_vm wasmedge_vm = {
-    .runtime_type = SB_WASM_RUNTIME_WASMEDGE,
-    .runtime_name = "wasmedge",
-    .init = sb_wasmedge_init,
-    .destroy = sb_wasmedge_destroy,
-    .load_module = sb_wasmedge_load_module
-
-};
-
 typedef struct
 {
-  uint8_t *wasm_file_buffer;
+  uint8_t *wasm_buffer;
   WasmEdge_ConfigureContext *config_context;
   WasmEdge_StoreContext *store_context;
   WasmEdge_VMContext *vm_context;
@@ -125,4 +112,34 @@ error:
   }
 
   return NULL;
+}
+
+static bool sb_wasmedge_init(void) {
+    log_text(LOG_DEBUG, "start initialize wasmedge runtime");
+
+
+    return true;
+error:
+    return false;
+}
+
+static int sb_wasmedge_prepare(void) {
+    return SUCCESS;
+}
+
+static int sb_wasmedge_destroy(void) {
+    return SUCCESS;
+}
+
+static sb_wasm_runtime wasmedge_vm = {
+    .runtime_type = SB_WASM_RUNTIME_WASMEDGE,
+    .runtime_name = "wasmedge",
+    .init = sb_wasmedge_init,
+    .prepare = sb_wasmedge_prepare,
+    .destroy = sb_wasmedge_destroy,
+    .load_module = sb_wasmedge_load_module
+};
+
+sb_wasm_runtime *create_wasmedge_vm(void){
+  return &wasmedge_vm;
 }

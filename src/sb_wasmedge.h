@@ -23,14 +23,4 @@
 #include "sysbench.h"
 #include "sb_wasm.h"
 
-void sb_wasmedge_done(void);
-
-bool sb_wasmedge_custom_command_defined(const char *name);
-
-int sb_wasmedge_report_thread_init(void);
-
-void sb_wasmedge_report_thread_done(void *);
-
-bool sb_wasmedge_loaded(void);
-
-sb_wasm_vm *create_wasmedge_vm(void);
+sb_wasm_runtime *create_wasmedge_vm(void);
