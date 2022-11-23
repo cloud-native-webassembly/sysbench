@@ -98,7 +98,7 @@ static bool sb_wamr_function_available(void *context, const char *fname) {
     }
 }
 
-static sb_wasm_sandbox *sb_wamr_create_sandbox(void *context, int thread_id) {
+static sb_wasm_sandbox *sb_wamr_create_sandbox(sb_wasm_module * module, int thread_id) {
     char error_buffer[128];
     long stack_size = 0;
     long heap_size = 0;
@@ -110,10 +110,8 @@ static sb_wasm_sandbox *sb_wamr_create_sandbox(void *context, int thread_id) {
         log_text(LOG_FATAL, "init wamr runtime failed");
         goto error;
     }
-
-    sb_wamr_module_context *module_context = (sb_wamr_module_context *)context;
-    wasm_module_t wamr_module = wasm_runtime_load(module_context->wamr_file_buffer,
-                                                  module_context->wamr_buffer_size,
+    wasm_module_t wamr_module = wasm_runtime_load(module->wasm_buffer,
+                                                  module->wasm_buffer_size,
                                                   error_buffer, sizeof(error_buffer));
     if (wamr_module == NULL) {
         log_text(LOG_FATAL, "load wamr module failed [%s]", error_buffer);
@@ -152,8 +150,8 @@ static sb_wasm_runtime wamr_vm = {
     .init = sb_wamr_init,
     .prepare = sb_wamr_prepare,
     .destroy = sb_wamr_destroy,
-    .load_module = NULL  // use default load method
-};
+    .load_module = NULL,  // use default load method
+    .create_sandbox = sb_wamr_create_sandbox};
 
 sb_wasm_runtime *create_wamr_vm(void) {
     return &wamr_vm;
