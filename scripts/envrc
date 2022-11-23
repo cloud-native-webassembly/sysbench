@@ -3,3 +3,4 @@ export PATH=${GCC_HOME}/bin:${PATH}
 export LANG=C 
 export SYSBENCH="./src/sysbench --verbosity=5 --thread-init-timeout=0"
 export WAMR_OPTS="--type=wasm --wasm-runtime=wamr"
+export WASMEDGE_OPTS="--type=wasm --wasm-runtime=wamr"
