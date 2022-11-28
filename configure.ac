@@ -29,7 +29,7 @@ AC_CANONICAL_TARGET
 CFLAGS=${SAVE_CFLAGS}
 CXXFLAGS=${SAVE_CXXFLAGS}
  
-AM_INIT_AUTOMAKE([-Wall -Werror foreign])
+AM_INIT_AUTOMAKE([-Wall -Werror foreign ])
 AC_CONFIG_SRCDIR([src/sysbench.c])
 AC_CONFIG_HEADER([config/config.h])
 AC_CONFIG_MACRO_DIR([m4])

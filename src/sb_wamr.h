@@ -24,7 +24,3 @@
 #include "sb_wasm.h"
 
 sb_wasm_runtime *create_wamr_runtime(void);
-
-#define WAMR_STACK_SIZE 8092
-#define WAMR_HEAP_SIZE 1024 * 1024
-#define WAMR_MAX_THREAD_NUM 16

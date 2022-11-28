@@ -45,10 +45,10 @@ static bool sb_wasmedge_function_available(void *context, const char *fname) {
     }
 }
 
-static int sb_wasmedge_function_apply(void *context, const char *fname, int64_t param_index) {
+static int sb_wasmedge_function_apply(void *context, const char *fname, int64_t *carrier) {
     sb_wasmedge_sandbox_context *sandbox_context = (sb_wasmedge_sandbox_context *)context;
     WasmEdge_VMContext *vm_context = sandbox_context->vm_context;
-    WasmEdge_Value params[1] = {WasmEdge_ValueGenI64(param_index)};
+    WasmEdge_Value params[1] = {WasmEdge_ValueGenI64(*carrier)};
     WasmEdge_Value returns[1];
     WasmEdge_String func_name = WasmEdge_StringCreateByCString(fname);
     WasmEdge_Result res;
@@ -91,7 +91,7 @@ static sb_wasm_sandbox *sb_wasmedge_create_sandbox(sb_wasm_module *module, int t
         goto error;
     }
 
-    res = WasmEdge_VMLoadWasmFromBuffer(sandbox_context->vm_context, module->buffer, module->size);
+    res = WasmEdge_VMLoadWasmFromBuffer(sandbox_context->vm_context, module->file_buffer, module->file_size);
     if (!WasmEdge_ResultOK(res)) {
         log_text(LOG_FATAL, "load wasm from buffer failed");
         goto error;

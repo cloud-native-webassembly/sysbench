@@ -1,13 +1,8 @@
-export LD_LIBRARY_PATH=${LLVM_HOME}/lib64:${GCC_HOME}/lib64:${LD_LIBRARY_PATH}
-export PATH=${LLVM_HOME}/bin:${GCC_HOME}/bin:${PATH}
+export CLANG=${WASI_SDK_HOME}/bin/clang
+export WASI_SDK_OPTS="--target=wasm32-wasi --sysroot=${WASI_SDK_HOME}/share/wasi-sysroot"
+export WASM_OPTS="-fPIC -z stack-size=8192 -Wl,--initial-memory=65536 -Wl,--no-entry"
+export WASM_EXPORTS="-Wl,--export=event "
 
-clang --target=wasm32-wasi -fPIC \
-      --sysroot=${WASI_SDK_HOME}/share/wasi-sysroot \
-      -nostdlib \
-      -z stack-size=8192 \
-      -Wl,--initial-memory=65536 \
-      -Wl,--no-entry \
-      -Wl,--allow-undefined \
-      -Wl,--export=event \
-      -Wl,--export=buffer \
-      -o sb_wasm_test.wasm sb_wasm_test.c
+bin=${1:-wasm}
+
+${CLANG} ${WASI_SDK_OPTS} ${WASM_OPTS} ${WASM_EXPORTS} -o ${bin} ${bin}.c
