@@ -42,24 +42,25 @@ typedef struct
 {
 } sb_wasm_function;
 
-typedef int (*sb_wasm_function_apply_func)(void *context, const char *fname, int thread_id);
-typedef bool (*sb_wasm_function_available_func)(void *context, const char *fname);
-typedef void *sb_wasm_sandbox_context_t;
+typedef struct
+{
+} sb_wasm_sandbox_context;
+
+typedef int (*sb_wasm_function_apply_func)(sb_wasm_sandbox_context *context, const char *fname, int thread_id, int64_t param_index);
+typedef bool (*sb_wasm_function_available_func)(sb_wasm_sandbox_context *context, const char *fname);
+
 typedef struct
 {
     char name[24];
-    sb_wasm_sandbox_context_t context;
+    sb_wasm_sandbox_context *context;
     sb_wasm_function_apply_func function_apply;
     sb_wasm_function_available_func function_available;
 } sb_wasm_sandbox; /* sandbox is an instance of module */
 
-typedef void *sb_wasm_module_context_t;
-
 typedef struct
 {
-    uint8_t *wasm_buffer;
-    uint32_t wasm_buffer_size;
-    sb_wasm_module_context_t context;
+    uint8_t *buffer;
+    uint32_t size;
 } sb_wasm_module; /* module is an instance of module file */
 
 typedef bool (*sb_wasm_init_func)(void);
@@ -77,6 +78,28 @@ typedef struct
     sb_wasm_load_module_func load_module;
     sb_wasm_create_sandbox_func create_sandbox;
 } sb_wasm_runtime;
+
+typedef struct {
+    union {
+        struct {
+            int32_t addr;
+            int32_t size;
+        } index;
+        int64_t request;
+    } u;
+} sb_wasm_request;
+
+typedef struct {
+    union {
+        struct {
+            int32_t addr;
+            int32_t size;
+        } index;
+        int64_t response;
+    } u;
+} sb_wasm_response;
+
+
 
 sb_wasm_runtime_t wasm_runtime_name_to_type(const char *runtime);
 

@@ -14,16 +14,20 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-BUILT_SOURCES = sb_wasm_test.c
+export LD_LIBRARY_PATH=${LLVM_HOME}/lib64:${GCC_HOME}/lib64:${LD_LIBRARY_PATH}
+export PATH=${LLVM_HOME}/bin:${GCC_HOME}/bin:${PATH}
+CLANG := ${WASI_SDK_HOME}/bin/clang
+WASM_OPTS := --target=wasm32-wasi -fPIC --sysroot=${WASI_SDK_HOME}/share/wasi-sysroot
 
-CLEANFILES = $(BUILT_SOURCES)
+BUILT_SOURCES = udf.c wasm.c
 
-EXTRA_DIST = $(BUILT_SOURCES:.h=)
-
-SUFFIXES = .c
-
-
-WASM_OPTS = -nostdlib -z stack-size=8192 -Wl,--initial-memory=65536 -Wl,--no-entry -Wl,--allow-undefined 
-
-sb_wasm_test.wasm: sb_wasm_test.c
-	clang --target=wasm32-wasi --sysroot=${WASI_SDK_HOME}/share/wasi-sysroot -o sb_wasm_test.wasm sb_wasm_test.c
+udf.wasm: udf.c
+	clang ${WASM_OPTS} \
+      -nostdlib \
+      -z stack-size=8192 \
+      -Wl,--initial-memory=65536 \
+      -Wl,--no-entry \
+      -Wl,--allow-undefined \
+      -Wl,--export=event \
+      -Wl,--export=buffer \
+      -o udf.wasm udf.c
