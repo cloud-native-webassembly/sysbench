@@ -412,6 +412,7 @@ src/tests/threads/Makefile
 src/tests/mutex/Makefile
 src/lua/Makefile
 src/lua/internal/Makefile
+src/wasm/Makefile
 src/python/Makefile
 tests/Makefile
 tests/include/config.sh

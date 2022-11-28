@@ -64,7 +64,8 @@ typedef enum
   SB_REQ_TYPE_SQL,
   SB_REQ_TYPE_THREADS,
   SB_REQ_TYPE_MUTEX,
-  SB_REQ_TYPE_SCRIPT
+  SB_REQ_TYPE_SCRIPT,
+  SB_REQ_TYPE_WASM
 } sb_event_type_t;
 
 typedef enum
@@ -91,6 +92,7 @@ typedef struct
     sb_file_request_t    file_request;
     sb_threads_request_t threads_request;
     sb_mutex_request_t   mutex_request;
+    int64_t              wasm_request;
   } u;
 } sb_event_t;
 

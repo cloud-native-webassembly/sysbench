@@ -23,4 +23,4 @@
 #include "sysbench.h"
 #include "sb_wasm.h"
 
-sb_wasm_runtime *create_wasmedge_vm(void);
+sb_wasm_runtime *create_wasmedge_runtime(void);

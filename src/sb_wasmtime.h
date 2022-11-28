@@ -33,4 +33,4 @@ void sb_wasmtime_report_thread_done(void *);
 
 bool sb_wasmtime_loaded(void);
 
-sb_wasm_runtime *create_wasmtime_vm(void);
+sb_wasm_runtime *create_wasmtime_runtime(void);

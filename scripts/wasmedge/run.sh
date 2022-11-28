@@ -1,2 +1,4 @@
 
-${SYSBENCH} ${WASMEDGE_OPTS} src/wasm/sb_wasm_test.wasm run
+cmd="${SYSBENCH} ${WASMEDGE_OPTS} src/wasm/sb_wasm_test.wasm run"
+echo cmd
+${cmd}
