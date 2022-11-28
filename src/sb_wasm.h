@@ -46,7 +46,7 @@ typedef struct
 {
 } sb_wasm_sandbox_context;
 
-typedef int (*sb_wasm_function_apply_func)(sb_wasm_sandbox_context *context, const char *fname, int thread_id, int64_t param_index);
+typedef int (*sb_wasm_function_apply_func)(sb_wasm_sandbox_context *context, const char *fname, int thread_id, int64_t *carrier);
 typedef bool (*sb_wasm_function_available_func)(sb_wasm_sandbox_context *context, const char *fname);
 
 typedef struct
@@ -59,8 +59,12 @@ typedef struct
 
 typedef struct
 {
-    uint8_t *buffer;
-    uint32_t size;
+    uint8_t *file_buffer;
+    uint32_t file_size;
+    uint32_t stack_size;
+    uint32_t heap_size;
+    uint32_t max_thread_num;
+    uint32_t buffer_size;
 } sb_wasm_module; /* module is an instance of module file */
 
 typedef bool (*sb_wasm_init_func)(void);
@@ -79,27 +83,14 @@ typedef struct
     sb_wasm_create_sandbox_func create_sandbox;
 } sb_wasm_runtime;
 
-typedef struct {
-    union {
-        struct {
-            int32_t addr;
-            int32_t size;
-        } index;
-        int64_t request;
-    } u;
-} sb_wasm_request;
+inline int64_t wasm_addr_encode(int32_t *base, int32_t *addr, int32_t size) {
+    return ((int64_t)(addr - base) << 32) | size;
+}
 
-typedef struct {
-    union {
-        struct {
-            int32_t addr;
-            int32_t size;
-        } index;
-        int64_t response;
-    } u;
-} sb_wasm_response;
-
-
+inline void wasm_addr_decode(int32_t *base, int64_t val, void **addr, int32_t *size) {
+    *addr = base + ((val >> 32) & 0xffffffff);
+    *size = val & 0xffffffff;
+}
 
 sb_wasm_runtime_t wasm_runtime_name_to_type(const char *runtime);
 
@@ -112,5 +103,10 @@ int sb_wasm_report_thread_init(void);
 void sb_wasm_report_thread_done(void *);
 
 bool sb_wasm_loaded(void);
+
+#define WASM_STACK_SIZE 8092
+#define WASM_HEAP_SIZE 1024 * 1024
+#define WASM_MAX_THREAD_NUM 16
+#define WASM_BUFFER_SIZE 1024 * 1024
 
 #endif

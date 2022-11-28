@@ -16,6 +16,13 @@
 #include "sb_wasmtime.h"
 #endif
 
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "sb_file.h"
+#include "sb_util.h"
+
 #define EVENT_FUNC "event"
 #define PREPARE_FUNC "prepare"
 #define CLEANUP_FUNC "cleanup"
@@ -44,7 +51,7 @@ static sb_operations_t wasm_ops = {
 
 static sb_test_t sbtest CK_CC_CACHELINE;
 
-static sb_wasm_runtime *wasm_runtime;
+static sb_wasm_runtime *wasm_runtime = NULL;
 static sb_wasm_module *wasm_module;
 static sb_wasm_sandbox **sandboxs CK_CC_CACHELINE;
 
@@ -99,7 +106,6 @@ sb_test_t *sb_load_wasm(const char *testname, const char *runtime) {
         log_text(LOG_FATAL, "no wasm file name provided");
         goto error;
     }
-
     sbtest.ops = wasm_ops;
     return &sbtest;
 
@@ -109,7 +115,7 @@ error:
 
 void sb_wasm_done(void) {
     if (sbtest.args != NULL) {
-        for (size_t i = 0; sbtest.args[i].name != NULL; i++) {
+        for (int i = 0; sbtest.args[i].name != NULL; i++) {
             xfree(sbtest.args[i].name);
             xfree(sbtest.args[i].desc);
             xfree(sbtest.args[i].value);
@@ -127,7 +133,7 @@ static sb_event_t sb_wasm_op_next_event(int thread_id) {
 
     (void)thread_id; /* unused */
 
-    req.u.wasm_request = 0;
+    req.u.wasm_carrier = NULL;
 
     req.type = SB_REQ_TYPE_WASM;
 
@@ -137,14 +143,14 @@ static sb_event_t sb_wasm_op_next_event(int thread_id) {
 int sb_wasm_op_execute_event(sb_event_t *r, int thread_id) {
     if (r != NULL) {
         sb_wasm_sandbox *sandbox = sandboxs[thread_id];
-        return sandbox->function_apply(sandbox->context, EVENT_FUNC, thread_id, r->u.wasm_request);
+        return sandbox->function_apply(sandbox->context, EVENT_FUNC, thread_id, r->u.wasm_carrier);
     } else {
         return FAILURE;
     }
 }
 
 bool sb_wasm_loaded(void) {
-    return true;
+    return wasm_runtime != NULL;
 }
 
 static sb_wasm_module *sb_wasm_load_module(const char *filepath) {
@@ -158,8 +164,9 @@ static sb_wasm_module *sb_wasm_load_module(const char *filepath) {
     log_text(LOG_INFO, "load %d bytes from %s", size, filepath);
 
     sb_wasm_module *wasm_module = malloc(sizeof(sb_wasm_module));
-    wasm_module->buffer = buffer;
-    wasm_module->size = size;
+    wasm_module->file_buffer = buffer;
+    wasm_module->file_size = size;
+
     return wasm_module;
 error:
     return NULL;
@@ -182,6 +189,11 @@ static int sb_wasm_op_init(void) {
         goto error;
     }
 
+    SB_SET_ENV_CONFIG(wasm_module->heap_size, WASM_HEAP_SIZE);
+    SB_SET_ENV_CONFIG(wasm_module->stack_size, WASM_STACK_SIZE);
+    SB_SET_ENV_CONFIG(wasm_module->max_thread_num, WASM_MAX_THREAD_NUM);
+    SB_SET_ENV_CONFIG(wasm_module->buffer_size, WASM_BUFFER_SIZE);
+
     sandboxs = (sb_wasm_sandbox **)calloc(sb_globals.threads, sizeof(sb_wasm_sandbox *));
     if (sandboxs == NULL)
         goto error;
@@ -192,6 +204,7 @@ error:
 static int sb_wasm_op_done(void) {
     return SUCCESS;
 }
+
 static int sb_wasm_op_thread_init(int thread_id) {
     sb_wasm_sandbox *sandbox = wasm_runtime->create_sandbox(wasm_module, thread_id);
     if (sandbox == NULL) {
@@ -200,5 +213,17 @@ static int sb_wasm_op_thread_init(int thread_id) {
     }
     sandboxs[thread_id] = sandbox;
 
-    return SUCCESS;
+    if (sandbox->function_available(sandbox->context, "create_buffer")) {
+        int64_t  carrier = wasm_module->buffer_size;
+        if (sandbox->function_apply(sandbox->context, "create_buffer", thread_id, &carrier) != SUCCESS) {
+            log_text(LOG_FATAL, "create buffer for sandbox %d failed", thread_id);
+            return FAILURE;
+        } else {
+            log_text(LOG_INFO, "create a buffer(%d) for sandbox %d", wasm_module->buffer_size, thread_id);
+            return SUCCESS;
+        }
+    } else {
+        log_text(LOG_FATAL, "'create_buffer' function not found in wasm module");
+        return FAILURE;
+    }
 }

@@ -57,7 +57,7 @@ sysbench_LDFLAGS += $(PYTHON_LDFLAGS)
 endif 
 
 if HAVE_WASM
-sysbench_SOURCES += sb_wasm.c sb_wasm.h wasm/udf.c wasm/wasm.c 
+sysbench_SOURCES += sb_wasm.c sb_wasm.h
 endif
 
 if HAVE_WAMR

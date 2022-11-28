@@ -26,7 +26,11 @@ if USE_BUNDLED_CK
   CK_DIR = third_party/concurrency_kit
 endif
 
-SUBDIRS = $(LUAJIT_DIR) $(CK_DIR) src tests
+SUBDIRS = $(LUAJIT_DIR) $(CK_DIR) src tests 
+
+if HAVE_WASM
+SUBDIRS += src/wasm
+endif
 
 EXTRA_DIST = autogen.sh README.md ChangeLog \
              snap/snapcraft.yaml.in third_party/cram \

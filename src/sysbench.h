@@ -92,7 +92,7 @@ typedef struct
     sb_file_request_t    file_request;
     sb_threads_request_t threads_request;
     sb_mutex_request_t   mutex_request;
-    int64_t              wasm_request;
+    int64_t              *wasm_carrier;
   } u;
 } sb_event_t;
 
