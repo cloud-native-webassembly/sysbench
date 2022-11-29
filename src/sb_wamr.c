@@ -107,6 +107,8 @@ static sb_wasm_sandbox *sb_wamr_create_sandbox(sb_wasm_module *module, int threa
     init_args.mem_alloc_type = Alloc_With_Pool;
     init_args.mem_alloc_option.pool.heap_buf = heap_buf;
     init_args.mem_alloc_option.pool.heap_size = module->heap_size;
+    strcpy(init_args.ip_addr, "0.0.0.0");
+    init_args.instance_port = 4000 + thread_id;
 
     /* initialize runtime environment with user configurations*/
     if (!wasm_runtime_full_init(&init_args)) {

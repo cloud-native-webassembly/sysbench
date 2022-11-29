@@ -140,7 +140,7 @@ void sb_wasm_done(void) {
 static sb_event_t sb_wasm_op_next_event(int thread_id) {
     sb_event_t req;
     sb_wasm_sandbox *sandbox = sandboxs[thread_id];
-    req.u.wasm_carrier = wasm_addr_encode(sandbox->buffer_addr, 0, 16);
+    req.u.wasm_carrier = wasm_addr_encode(sandbox->heap_base, sandbox->buffer_addr, 16);
     for (int i = 0; i < 16; i++) {
         sandbox->buffer_addr[i] = i;
     }
