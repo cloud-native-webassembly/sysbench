@@ -31,12 +31,12 @@ typedef struct {
     WasmEdge_VMContext *vm_context;
 } sb_wasmedge_sandbox_context;
 
-static bool sb_wasmedge_function_available(void *context, const char *fname) {
+static bool sb_wasmedge_function_available(sb_wasm_sandbox_context *context, const char *fname) {
     sb_wasmedge_sandbox_context *sandbox_context = (sb_wasmedge_sandbox_context *)context;
     WasmEdge_VMContext *vm_context = sandbox_context->vm_context;
-    WasmEdge_String module_name = WasmEdge_StringCreateByCString(fname);
     WasmEdge_String func_name = WasmEdge_StringCreateByCString(fname);
-    WasmEdge_FunctionTypeContext *func_context = WasmEdge_VMGetFunctionTypeRegistered(vm_context, module_name, func_name);
+    const WasmEdge_ModuleInstanceContext *active_module = WasmEdge_VMGetActiveModule(vm_context);
+    WasmEdge_FunctionInstanceContext *func_context = WasmEdge_ModuleInstanceFindFunction(active_module, func_name);
 
     if (func_context == NULL) {
         return false;
@@ -45,7 +45,7 @@ static bool sb_wasmedge_function_available(void *context, const char *fname) {
     }
 }
 
-static int sb_wasmedge_function_apply(void *context, const char *fname, int64_t *carrier) {
+static int sb_wasmedge_function_apply(sb_wasm_sandbox_context *context, const char *fname, int thread_id, int64_t *carrier) {
     sb_wasmedge_sandbox_context *sandbox_context = (sb_wasmedge_sandbox_context *)context;
     WasmEdge_VMContext *vm_context = sandbox_context->vm_context;
     WasmEdge_Value params[1] = {WasmEdge_ValueGenI64(*carrier)};
@@ -80,6 +80,7 @@ static sb_wasm_sandbox *sb_wasmedge_create_sandbox(sb_wasm_module *module, int t
         log_text(LOG_FATAL, "wasmedge can not create configure context");
         goto error;
     }
+    WasmEdge_ConfigureAddHostRegistration(sandbox_context->config_context, WasmEdge_HostRegistration_Wasi);
     sandbox_context->store_context = WasmEdge_StoreCreate();
     if (sandbox_context->store_context == NULL) {
         log_text(LOG_FATAL, "wasm edge can not create store context");
@@ -90,7 +91,6 @@ static sb_wasm_sandbox *sb_wasmedge_create_sandbox(sb_wasm_module *module, int t
         log_text(LOG_FATAL, "wasm edge can not create vm context");
         goto error;
     }
-
     res = WasmEdge_VMLoadWasmFromBuffer(sandbox_context->vm_context, module->file_buffer, module->file_size);
     if (!WasmEdge_ResultOK(res)) {
         log_text(LOG_FATAL, "load wasm from buffer failed");
@@ -109,7 +109,7 @@ static sb_wasm_sandbox *sb_wasmedge_create_sandbox(sb_wasm_module *module, int t
 
     sb_wasm_sandbox *sandbox = malloc(sizeof(sb_wasm_sandbox));
     snprintf(sandbox->name, sizeof(sandbox->name), "wasmedge-sandbox-%d", thread_id);
-    sandbox->context = sandbox_context;
+    sandbox->context = (sb_wasm_sandbox_context *)sandbox_context;
     sandbox->function_apply = sb_wasmedge_function_apply;
     sandbox->function_available = sb_wasmedge_function_available;
     return sandbox;
