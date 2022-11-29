@@ -57,6 +57,16 @@ static int sb_wamr_destroy(void) {
     return SUCCESS;
 }
 
+static void *sb_wamr_addr_app_to_native(sb_wasm_sandbox_context *context, int32_t app_addr) {
+    sb_wamr_sandbox_context *sandbox_context = (sb_wamr_sandbox_context *)context;
+    return wasm_runtime_addr_app_to_native(sandbox_context->wamr_module_inst, app_addr);
+}
+
+static int32_t sb_wamr_addr_native_to_app(sb_wasm_sandbox_context *context, void *native_addr) {
+    sb_wamr_sandbox_context *sandbox_context = (sb_wamr_sandbox_context *)context;
+    return wasm_runtime_addr_native_to_app(sandbox_context->wamr_module_inst, native_addr);
+}
+
 static int sb_wamr_function_apply(sb_wasm_sandbox_context *context, const char *fname, int thread_id, int64_t *carrier) {
     sb_wamr_sandbox_context *sandbox_context = (sb_wamr_sandbox_context *)context;
     wasm_val_t args[1], results[1];
@@ -65,13 +75,13 @@ static int sb_wamr_function_apply(sb_wasm_sandbox_context *context, const char *
 
     wasm_function_inst_t func = wasm_runtime_lookup_function(sandbox_context->wamr_module_inst, fname, NULL);
     if (func == NULL) {
-        log_text(LOG_FATAL, "function %s not found in wasm module", fname);
+        log_text(LOG_FATAL, "function %s not found in sandbox %d", fname, thread_id);
         return FAILURE;
     } else {
         /* call the WASM function */
         if (wasm_runtime_call_wasm_a(sandbox_context->wamr_exec_env, func, 1, results, 1, args)) {
             if (results[0].kind != WASM_I64) {
-                log_text(LOG_FATAL, "function %s return a %d value instead of WASM_I64 value", results[0].kind, fname);
+                log_text(LOG_FATAL, "function %s return a %d value instead of WASM_I64 value", fname, results[0].kind);
                 return FAILURE;
             } else {
                 *carrier = results[0].of.i64;
@@ -147,6 +157,8 @@ static sb_wasm_sandbox *sb_wamr_create_sandbox(sb_wasm_module *module, int threa
     sandbox->heap_base = heap_buf;
     sandbox->function_apply = sb_wamr_function_apply;
     sandbox->function_available = sb_wamr_function_available;
+    sandbox->addr_app_to_native = sb_wamr_addr_app_to_native;
+    sandbox->addr_native_to_app = sb_wamr_addr_native_to_app;
     return sandbox;
 error:
     return NULL;

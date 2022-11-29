@@ -48,15 +48,19 @@ typedef struct
 
 typedef int (*sb_wasm_function_apply_func)(sb_wasm_sandbox_context *context, const char *fname, int thread_id, int64_t *carrier);
 typedef bool (*sb_wasm_function_available_func)(sb_wasm_sandbox_context *context, const char *fname);
+typedef void *(*sb_wasm_addr_app_to_native_func)(sb_wasm_sandbox_context *context, int32_t app_addr);
+typedef int32_t (*sb_wasm_addr_native_to_app_func)(sb_wasm_sandbox_context *context, void *native_addr);
 
 typedef struct
 {
     char name[24];
     int32_t *heap_base;
-    int32_t *buffer_addr;
+    int32_t buffer_addr;
     sb_wasm_sandbox_context *context;
     sb_wasm_function_apply_func function_apply;
     sb_wasm_function_available_func function_available;
+    sb_wasm_addr_app_to_native_func addr_app_to_native;
+    sb_wasm_addr_native_to_app_func addr_native_to_app;
 } sb_wasm_sandbox; /* sandbox is an instance of module */
 
 typedef struct
@@ -85,11 +89,15 @@ typedef struct
     sb_wasm_create_sandbox_func create_sandbox;
 } sb_wasm_runtime;
 
-int64_t wasm_addr_encode(int32_t *base, int32_t *addr, int32_t size);
+int64_t sb_wasm_addr_encode(int32_t addr, int32_t size);
 
-void wasm_addr_decode(int32_t *base, int64_t val, void **addr, int32_t *size);
+void sb_wasm_addr_decode(int64_t val, int32_t *addr, int32_t *size);
 
-sb_wasm_runtime_t wasm_runtime_name_to_type(const char *runtime);
+void *sb_wasm_addr_app_to_native(sb_wasm_sandbox *sandbox, int32_t app_addr);
+
+int32_t sb_wasm_addr_native_to_app(sb_wasm_sandbox *sandbox, void *native_addr);
+
+sb_wasm_runtime_t sb_wasm_runtime_name_to_type(const char *runtime);
 
 sb_test_t *sb_load_wasm(const char *testname, const char *runtime);
 
