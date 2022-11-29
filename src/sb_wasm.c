@@ -69,6 +69,15 @@ sb_wasm_runtime_t wasm_runtime_name_to_type(const char *runtime) {
     }
 }
 
+int64_t wasm_addr_encode(int32_t *base, int32_t *addr, int32_t size) {
+    return ((int64_t)(addr - base) << 32) | size;
+}
+
+void wasm_addr_decode(int32_t *base, int64_t val, void **addr, int32_t *size) {
+    *addr = base + ((val >> 32) & 0xffffffff);
+    *size = val & 0xffffffff;
+}
+
 sb_test_t *sb_load_wasm(const char *testname, const char *runtime) {
     log_text(LOG_DEBUG, "load wasm using runtime: %s", runtime);
     sb_wasm_runtime_t runtime_t = wasm_runtime_name_to_type(runtime);
@@ -130,10 +139,11 @@ void sb_wasm_done(void) {
 
 static sb_event_t sb_wasm_op_next_event(int thread_id) {
     sb_event_t req;
-
-    (void)thread_id; /* unused */
-
-    req.u.wasm_carrier = NULL;
+    sb_wasm_sandbox *sandbox = sandboxs[thread_id];
+    req.u.wasm_carrier = wasm_addr_encode(sandbox->buffer_addr, 0, 16);
+    for (int i = 0; i < 16; i++) {
+        sandbox->buffer_addr[i] = i;
+    }
 
     req.type = SB_REQ_TYPE_WASM;
 
@@ -143,7 +153,7 @@ static sb_event_t sb_wasm_op_next_event(int thread_id) {
 int sb_wasm_op_execute_event(sb_event_t *r, int thread_id) {
     if (r != NULL) {
         sb_wasm_sandbox *sandbox = sandboxs[thread_id];
-        return sandbox->function_apply(sandbox->context, EVENT_FUNC, thread_id, r->u.wasm_carrier);
+        return sandbox->function_apply(sandbox->context, EVENT_FUNC, thread_id, &r->u.wasm_carrier);
     } else {
         return FAILURE;
     }
@@ -214,12 +224,14 @@ static int sb_wasm_op_thread_init(int thread_id) {
     sandboxs[thread_id] = sandbox;
 
     if (sandbox->function_available(sandbox->context, "create_buffer")) {
-        int64_t  carrier = wasm_module->buffer_size;
+        int64_t carrier = wasm_module->buffer_size;
         if (sandbox->function_apply(sandbox->context, "create_buffer", thread_id, &carrier) != SUCCESS) {
             log_text(LOG_FATAL, "create buffer for sandbox %d failed", thread_id);
             return FAILURE;
         } else {
-            log_text(LOG_INFO, "create a buffer(%d) for sandbox %d", wasm_module->buffer_size, thread_id);
+            int32_t buffer_size = 0;
+            wasm_addr_decode(sandbox->heap_base, carrier, &sandbox->buffer_addr, &buffer_size);
+            log_text(LOG_INFO, "create a buffer(%d) for sandbox %d at %p", buffer_size, thread_id, sandbox->buffer_addr);
             return SUCCESS;
         }
     } else {

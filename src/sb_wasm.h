@@ -52,6 +52,8 @@ typedef bool (*sb_wasm_function_available_func)(sb_wasm_sandbox_context *context
 typedef struct
 {
     char name[24];
+    int32_t *heap_base;
+    int32_t *buffer_addr;
     sb_wasm_sandbox_context *context;
     sb_wasm_function_apply_func function_apply;
     sb_wasm_function_available_func function_available;
@@ -83,14 +85,9 @@ typedef struct
     sb_wasm_create_sandbox_func create_sandbox;
 } sb_wasm_runtime;
 
-inline int64_t wasm_addr_encode(int32_t *base, int32_t *addr, int32_t size) {
-    return ((int64_t)(addr - base) << 32) | size;
-}
+int64_t wasm_addr_encode(int32_t *base, int32_t *addr, int32_t size);
 
-inline void wasm_addr_decode(int32_t *base, int64_t val, void **addr, int32_t *size) {
-    *addr = base + ((val >> 32) & 0xffffffff);
-    *size = val & 0xffffffff;
-}
+void wasm_addr_decode(int32_t *base, int64_t val, void **addr, int32_t *size);
 
 sb_wasm_runtime_t wasm_runtime_name_to_type(const char *runtime);
 

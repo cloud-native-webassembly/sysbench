@@ -71,7 +71,7 @@ static int sb_wamr_function_apply(sb_wasm_sandbox_context *context, const char *
         /* call the WASM function */
         if (wasm_runtime_call_wasm_a(sandbox_context->wamr_exec_env, func, 1, results, 1, args)) {
             if (results[0].kind != WASM_I64) {
-                log_text(LOG_FATAL, "function %s does not return a WASM_I64 value", fname);
+                log_text(LOG_FATAL, "function %s return a %d value instead of WASM_I64 value", results[0].kind, fname);
                 return FAILURE;
             } else {
                 *carrier = results[0].of.i64;
@@ -142,6 +142,7 @@ static sb_wasm_sandbox *sb_wamr_create_sandbox(sb_wasm_module *module, int threa
     sb_wasm_sandbox *sandbox = malloc(sizeof(sb_wasm_sandbox));
     snprintf(sandbox->name, sizeof(sandbox->name), "wamr-sandbox-%d", thread_id);
     sandbox->context = (sb_wasm_sandbox_context *)sandbox_context;
+    sandbox->heap_base = heap_buf;
     sandbox->function_apply = sb_wamr_function_apply;
     sandbox->function_available = sb_wamr_function_available;
     return sandbox;
