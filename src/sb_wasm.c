@@ -149,13 +149,14 @@ static sb_event_t sb_wasm_op_next_event(int thread_id) {
     sb_event_t req;
     sb_wasm_sandbox *sandbox = sandboxs[thread_id];
 
-    int32_t *buffer_in_wasm = sb_wasm_addr_app_to_native(sandbox, sandbox->buffer_addr);
+    // write data into wasm sandbox, currently only wamr support it
+    // int32_t *buffer_in_wasm = sb_wasm_addr_app_to_native(sandbox, sandbox->buffer_addr);
+    // for (int i = 0; i < 16; i++) {
+    //     buffer_in_wasm[i] = i;
+    // }
+    // req.u.wasm_request = sb_wasm_addr_encode(sandbox->buffer_addr, 16);
 
-    req.u.wasm_carrier = sb_wasm_addr_encode(sandbox->buffer_addr, 16);
-    for (int i = 0; i < 16; i++) {
-        buffer_in_wasm[i] = i;
-    }
-
+    req.u.wasm_request = thread_id;
     req.type = SB_REQ_TYPE_WASM;
 
     return req;
@@ -164,7 +165,7 @@ static sb_event_t sb_wasm_op_next_event(int thread_id) {
 int sb_wasm_op_execute_event(sb_event_t *r, int thread_id) {
     if (r != NULL) {
         sb_wasm_sandbox *sandbox = sandboxs[thread_id];
-        return sandbox->function_apply(sandbox->context, EVENT_FUNC, thread_id, &r->u.wasm_carrier);
+        return sandbox->function_apply(sandbox->context, EVENT_FUNC, thread_id, &r->u.wasm_request);
     } else {
         return FAILURE;
     }
@@ -246,7 +247,7 @@ static int sb_wasm_op_thread_init(int thread_id) {
             return SUCCESS;
         }
     } else {
-        log_text(LOG_FATAL, "'create_buffer' function not found in wasm module");
-        return FAILURE;
+        log_text(LOG_WARNING, "'create_buffer' function not found in wasm module");
+        return SUCCESS;
     }
 }
