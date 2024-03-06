@@ -97,7 +97,7 @@ AC_DEFUN([AX_CHECK_WASMEDGE], [
         [test "x${WASMEDGE}" != x],
         [
           WASMEDGE_CFLAGS="-I${WASMEDGE_HOME}/include"
-          WASMEDGE_LDFLAGS="-L${WASMEDGE_HOME}/lib64 -Wl,-rpath=${WASMEDGE_HOME}/lib64"
+          WASMEDGE_LDFLAGS="-L${WASMEDGE_HOME}/lib -Wl,-rpath=${WASMEDGE_HOME}/lib"
           WASMEDGE_LIBS="-lwasmedge"
           AC_SUBST([WASMEDGE_HOME])
           AC_SUBST([WASMEDGE])
@@ -224,7 +224,7 @@ AC_DEFUN([SB_WASM], [
   AX_CHECK_WASMTIME
   AC_ARG_WITH(
     [wasm],
-    AS_HELP_STRING([--without-wasm],[compile with wasmtime support (default is enabled)]),
+    AS_HELP_STRING([--without-wasm],[disable wasm (default is enabled)]),
     [],
     [ac_cv_enable_wasm=yes]
   )
