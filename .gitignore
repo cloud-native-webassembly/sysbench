@@ -114,3 +114,4 @@ core.*
 perf.data
 perf.data.old
 src/wasm/.deps/
+configure~

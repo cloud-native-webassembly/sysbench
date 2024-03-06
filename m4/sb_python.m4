@@ -114,7 +114,7 @@ AC_DEFUN([AX_PYTHON_CHECK_ENABLE], [
   AC_ARG_WITH([python],
               AS_HELP_STRING([--with-python],
                             [compile with python support (default is enabled)]),
-              [], [ac_cv_enable_python=no])
+              [ac_cv_enable_python=yes], [])
   AS_IF(
     [test "x${ac_cv_enable_python}" != xno],
     [AX_PYTHON_CHECK])
