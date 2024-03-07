@@ -38,27 +38,10 @@ split_string_SOURCES = split_string.c
 string_to_double_SOURCES = string_to_double.c
 string_to_int_SOURCES = string_to_int.c
 
-build_user_id: build_user_id.c
-	$(CLANG) ${WASI_SDK_OPTS} ${WASM_OPTS} ${WASM_EXPORTS} -o $@ $^
-
-normalize_with_base: normalize_with_base.c
-	$(CLANG) ${WASI_SDK_OPTS} ${WASM_OPTS} ${WASM_EXPORTS} -o $@ $^
+%: %.c
+  $(CLANG) ${WASI_SDK_OPTS} ${WASM_OPTS} ${WASM_EXPORTS} -o $@ $^
 
 pass_data: pass_data.c
-	$(CLANG) ${WASI_SDK_OPTS} ${WASM_OPTS} ${WASM_EXPORTS} \
-      -Wl,--export=create_buffer \
-      -o $@ $^
-
-point_polygen_distance: point_polygen_distance.c
-	$(CLANG) ${WASI_SDK_OPTS} ${WASM_OPTS} ${WASM_EXPORTS} -o $@ $^
-
-split_string: split_string.c
-	$(CLANG) ${WASI_SDK_OPTS} ${WASM_OPTS} ${WASM_EXPORTS} -o $@ $^
-
-string_to_double: string_to_double.c
-	$(CLANG) ${WASI_SDK_OPTS} ${WASM_OPTS} ${WASM_EXPORTS} -o $@ $^
-
-string_to_int: string_to_int.c
-	$(CLANG) ${WASI_SDK_OPTS} ${WASM_OPTS} ${WASM_EXPORTS} -o $@ $^
+  $(CLANG) ${WASI_SDK_OPTS} ${WASM_OPTS} ${WASM_EXPORTS} -Wl,--export=create_buffer -o $@ $^
 
 endif
