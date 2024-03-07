@@ -22,7 +22,7 @@ AC_DEFUN([AX_CHECK_WAMR], [
   AC_ARG_WITH(
     [wamr],
     AS_HELP_STRING([--with-wamr],[compile with wamr support (default is enabled)]),
-    [],
+    [ac_cv_enable_wamr=yes],
     [ac_cv_enable_wamr=no]
   )
   AS_IF(
@@ -71,7 +71,7 @@ AC_DEFUN([AX_CHECK_WASMEDGE], [
   AC_ARG_WITH(
     [wasmedge],
     AS_HELP_STRING([--with-wasmedge],[compile with wasmedge support (default is enabled)]),
-    [],
+    [ac_cv_enable_wasmedge=yes],
     [ac_cv_enable_wasmedge=no]
   )
   AS_IF(
@@ -121,7 +121,7 @@ AC_DEFUN([AX_CHECK_WASMER], [
   AC_ARG_WITH(
     [wasmer],
     AS_HELP_STRING([--with-wasmer],[compile with wasmer support (default is enabled)]),
-    [],
+    [ac_cv_enable_wasmer=yes],
     [ac_cv_enable_wasmer=no]
   )
   AS_IF(
@@ -147,7 +147,7 @@ AC_DEFUN([AX_CHECK_WASMER], [
         [test "x${WASMER}" != x],
         [
           WASMER_CFLAGS="-I${WASMER_HOME}/include"
-          WASMER_LDFLAGS="-L${WASMER_HOME}/lib"
+          WASMER_LDFLAGS="-L${WASMER_HOME}/lib -Wl,-rpath=${WASMER_HOME}/lib"
           WASMER_LIBS="-lwasmer"
           AC_SUBST([WASMER_HOME])
           AC_SUBST([WASMER])
@@ -171,7 +171,7 @@ AC_DEFUN([AX_CHECK_WASMTIME], [
   AC_ARG_WITH(
     [wasmtime],
     AS_HELP_STRING([--with-wasmtime],[compile with wasmtime support (default is enabled)]),
-    [],
+    [ac_cv_enable_wasmtime=yes],
     [ac_cv_enable_wasmtime=no]
   )
   AS_IF(
@@ -197,7 +197,7 @@ AC_DEFUN([AX_CHECK_WASMTIME], [
         [test "x${WASMTIME}" != x],
         [
           WASMTIME_CFLAGS="-I${WASMTIME_HOME}/include"
-          WASMTIME_LDFLAGS="-L${WASMTIME_HOME}/lib -lpthread -ldl -lm"
+          WASMTIME_LDFLAGS="-L${WASMTIME_HOME}/lib -Wl,-rpath=${WASMTIME_HOME}/lib -lpthread -ldl -lm"
           WASMTIME_LIBS="-lwasmtime"
           AC_SUBST([WAMR_HOME])
           AC_SUBST([WASMTIME])
