@@ -106,14 +106,13 @@ AC_DEFUN([AX_PYTHON_CHECK], [
       [PYTHON_PACKAGE_DIR],
       [$ax_python_library_dir])
     ])
-
-    AC_DEFINE(HAVE_PYTHON,1,[Define if python was found])
   ])
 
 AC_DEFUN([AX_PYTHON_CHECK_ENABLE], [
+  ac_cv_enable_python=no
   AC_ARG_WITH([python],
               AS_HELP_STRING([--with-python],
-                            [compile with python support (default is enabled)]),
+                            [compile with python support (default is disable)]),
               [ac_cv_enable_python=yes], [])
   AS_IF(
     [test "x${ac_cv_enable_python}" != xno],

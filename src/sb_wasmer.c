@@ -34,7 +34,7 @@ static int sb_wasmer_init(void) {}
 static int sb_wasmer_destroy(void) {}
 static sb_wasm_module sb_wasmer_load_module(const char *filepath) {}
 
-static sb_wasm_runtime wasmer_vm = {
+static sb_wasm_runtime wasmer_runtime = {
     .runtime_type = SB_WASM_RUNTIME_WASMER,
     .runtime_name = "wasmer",
     .init = sb_wasmer_init,
@@ -42,3 +42,7 @@ static sb_wasm_runtime wasmer_vm = {
     .load_module = sb_wasmer_load_module
 
 };
+
+sb_wasm_runtime *create_wasmer_runtime(void) {
+    return &wasmer_runtime;
+}

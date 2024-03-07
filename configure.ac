@@ -442,6 +442,7 @@ AC_MSG_RESULT([LUAJIT_CFLAGS      : ${LUAJIT_CFLAGS}])
 AC_MSG_RESULT([LUAJIT_LIBS        : ${LUAJIT_LIBS}])
 AC_MSG_RESULT([LUAJIT_LDFLAGS     : ${LUAJIT_LDFLAGS}])
 AC_MSG_RESULT([])
+AC_MSG_RESULT([python support     : ${ac_cv_enable_python}])
 if test "x${ac_cv_enable_python}" != xno; then
   AC_MSG_RESULT([python was found in ${PYTHON_HOME}])
   AC_MSG_RESULT([PYTHON_CFLAGS      : ${PYTHON_CFLAGS}])
@@ -449,38 +450,40 @@ if test "x${ac_cv_enable_python}" != xno; then
   AC_MSG_RESULT([PYTHON_LIBS        : ${PYTHON_LIBS}])
   AC_MSG_RESULT([])
 fi
-AC_MSG_RESULT([WASM support : ${ac_cv_enable_wasm}])
-if test "x${ac_cv_enable_wamr}" != xno; then
-  AC_MSG_RESULT([wamr was found in ${WAMR_HOME}])
-  AC_MSG_RESULT([WAMR               : ${WAMR}])
-  AC_MSG_RESULT([WAMR_CFLAGS        : ${WAMR_CFLAGS}])
-  AC_MSG_RESULT([WAMR_LDFLAGS       : ${WAMR_LDFLAGS}])
-  AC_MSG_RESULT([WAMR_LIBS          : ${WAMR_LIBS}])
-  AC_MSG_RESULT([])
-fi
-if test "x${ac_cv_enable_wasmedge}" != xno; then
-  AC_MSG_RESULT([wasmedge was found in ${WASMEDGE_HOME}])
-  AC_MSG_RESULT([WASMEDGE           : ${WASMEDGE}])
-  AC_MSG_RESULT([WASMEDGE_CFLAGS    : ${WASMEDGE_CFLAGS}])
-  AC_MSG_RESULT([WASMEDGE_LDFLAGS   : ${WASMEDGE_LDFLAGS}])
-  AC_MSG_RESULT([WASMEDGE_LIBS      : ${WASMEDGE_LIBS}])
-  AC_MSG_RESULT([])
-fi
-if test "x${ac_cv_enable_wasmer}" != xno; then
-  AC_MSG_RESULT([wasmer was found in ${WASMER_HOME}])
-  AC_MSG_RESULT([WASMER             : ${WASMER}])
-  AC_MSG_RESULT([WASMER_CFLAGS      : ${WASMER_CFLAGS}])
-  AC_MSG_RESULT([WASMER_LDFLAGS     : ${WASMER_LDFLAGS}])
-  AC_MSG_RESULT([WASMER_LIBS        : ${WASMER_LIBS}])
-  AC_MSG_RESULT([])
-fi
-if test "x${ac_cv_enable_wasmtime}" != xno; then
-  AC_MSG_RESULT([wasmtime was found in ${WASMTIME_HOME}])
-  AC_MSG_RESULT([WASMTIME           : ${WASMTIME}])
-  AC_MSG_RESULT([WASMTIME_CFLAGS    : ${WASMTIME_CFLAGS}])
-  AC_MSG_RESULT([WASMTIME_LDFLAGS   : ${WASMTIME_LDFLAGS}])
-  AC_MSG_RESULT([WASMTIME_LIBS      : ${WASMTIME_LIBS}])
-  AC_MSG_RESULT([])
+AC_MSG_RESULT([wasm support       : ${ac_cv_enable_wasm}])
+if test "x${ac_cv_enable_wasm}" != xno; then
+  if test "x${ac_cv_enable_wamr}" != xno; then
+    AC_MSG_RESULT([wamr was found in ${WAMR_HOME}])
+    AC_MSG_RESULT([WAMR               : ${WAMR}])
+    AC_MSG_RESULT([WAMR_CFLAGS        : ${WAMR_CFLAGS}])
+    AC_MSG_RESULT([WAMR_LDFLAGS       : ${WAMR_LDFLAGS}])
+    AC_MSG_RESULT([WAMR_LIBS          : ${WAMR_LIBS}])
+    AC_MSG_RESULT([])
+  fi
+  if test "x${ac_cv_enable_wasmedge}" != xno; then
+    AC_MSG_RESULT([wasmedge was found in ${WASMEDGE_HOME}])
+    AC_MSG_RESULT([WASMEDGE           : ${WASMEDGE}])
+    AC_MSG_RESULT([WASMEDGE_CFLAGS    : ${WASMEDGE_CFLAGS}])
+    AC_MSG_RESULT([WASMEDGE_LDFLAGS   : ${WASMEDGE_LDFLAGS}])
+    AC_MSG_RESULT([WASMEDGE_LIBS      : ${WASMEDGE_LIBS}])
+    AC_MSG_RESULT([])
+  fi
+  if test "x${ac_cv_enable_wasmer}" != xno; then
+    AC_MSG_RESULT([wasmer was found in ${WASMER_HOME}])
+    AC_MSG_RESULT([WASMER             : ${WASMER}])
+    AC_MSG_RESULT([WASMER_CFLAGS      : ${WASMER_CFLAGS}])
+    AC_MSG_RESULT([WASMER_LDFLAGS     : ${WASMER_LDFLAGS}])
+    AC_MSG_RESULT([WASMER_LIBS        : ${WASMER_LIBS}])
+    AC_MSG_RESULT([])
+  fi
+  if test "x${ac_cv_enable_wasmtime}" != xno; then
+    AC_MSG_RESULT([wasmtime was found in ${WASMTIME_HOME}])
+    AC_MSG_RESULT([WASMTIME           : ${WASMTIME}])
+    AC_MSG_RESULT([WASMTIME_CFLAGS    : ${WASMTIME_CFLAGS}])
+    AC_MSG_RESULT([WASMTIME_LDFLAGS   : ${WASMTIME_LDFLAGS}])
+    AC_MSG_RESULT([WASMTIME_LIBS      : ${WASMTIME_LIBS}])
+    AC_MSG_RESULT([])
+  fi
 fi
 AC_MSG_RESULT([Concurrency Kit    : ${sb_use_ck}])
 if test "$sb_use_ck" = bundled; then
