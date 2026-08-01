@@ -10,6 +10,10 @@
 
 - [sysbench](#sysbench)
     - [Features](#features)
+- [Feature List](#feature-list)
+    - [Functional](#functional)
+    - [Non-functional](#non-functional)
+    - [Runtime Support Status](#runtime-support-status)
 - [Installing from Binary Packages](#installing-from-binary-packages)
     - [Linux](#linux)
     - [macOS](#macos)
@@ -57,6 +61,59 @@ sysbench comes with the following bundled benchmarks:
   in user-provided Lua scripts;
 - can be used as a general-purpose Lua interpreter as well, simply
   replace `#!/usr/bin/lua` with `#!/usr/bin/sysbench` in your script.
+
+# Feature List
+
+This is a customized fork of sysbench that extends the framework from database and OS
+benchmarking into a harness for benchmarking **external systems**, currently focused on
+**WebAssembly runtimes**. The features below are the fork's additions; all upstream
+sysbench capabilities listed above are inherited unchanged.
+
+The authoritative registry is [`.specify/memory/features.md`](.specify/memory/features.md),
+with per-feature detail under `.specify/memory/features/`.
+
+## Functional
+
+| ID | Feature | Status |
+|---|---|---|
+| [001](.specify/memory/features/001.md) | WASM Test Type Dispatch — `--type=wasm` with `--wasm-runtime` backend selection | Implemented |
+| [002](.specify/memory/features/002.md) | WASM Runtime Abstraction Layer — shared vtable, sandbox, and module contracts | Implemented |
+| [003](.specify/memory/features/003.md) | WAMR Runtime Backend | Implemented |
+| [004](.specify/memory/features/004.md) | WasmEdge Runtime Backend | Implemented |
+| [005](.specify/memory/features/005.md) | Wasmer Runtime Backend | Draft (stub) |
+| [006](.specify/memory/features/006.md) | Wasmtime Runtime Backend | Draft (stub) |
+| [007](.specify/memory/features/007.md) | Host-Sandbox Data Exchange — packed address/size buffer passing | Implemented |
+| [008](.specify/memory/features/008.md) | WASM Benchmark Workload Suite — WASI-SDK compiled modules exporting `event` | Implemented |
+| [009](.specify/memory/features/009.md) | WASM Build Configuration — per-runtime SDK detection and conditional build | Implemented |
+
+## Non-functional
+
+| ID | Feature | Status |
+|---|---|---|
+| [010](.specify/memory/features/010.md) | Sandbox Resource Configuration — heap, stack, thread, buffer sizing | Implemented |
+| [011](.specify/memory/features/011.md) | Runtime Debug Harness Scripts | Implemented |
+| [012](.specify/memory/features/012.md) | WASM Resource Lifecycle Teardown | Draft |
+| [013](.specify/memory/features/013.md) | Cross-Runtime Result Comparability | Draft |
+| [014](.specify/memory/features/014.md) | WASM Layer Automated Tests | Draft |
+| [015](.specify/memory/features/015.md) | WASM Continuous Integration | Draft |
+| [016](.specify/memory/features/016.md) | Pinned SDK Provisioning | Draft |
+| [017](.specify/memory/features/017.md) | WASM Layer Documentation | Draft |
+| [018](.specify/memory/features/018.md) | WASM Failure Diagnostics | Draft |
+
+## Runtime Support Status
+
+Reported from source inspection; the code is authoritative for what currently works.
+
+| Runtime | Configure flag | Engine integration |
+|---|---|---|
+| WAMR | `--with-wasm --with-wamr` | Working — full sandbox lifecycle and address translation |
+| WasmEdge | `--with-wasm --with-wasmedge` | Working — no address translation, so no buffer-passing workloads |
+| Wasmer | `--with-wasm --with-wasmer` | Not implemented — descriptor registers but makes no SDK calls |
+| Wasmtime | `--with-wasm --with-wasmtime` | Not implemented — descriptor registers but makes no SDK calls |
+
+All WASM SDKs are external prerequisites discovered at configure time via `*_HOME` or
+`PATH`; guest modules require WASI-SDK. Note that the per-runtime flags only take effect
+when the master `--with-wasm` gate is also passed.
 
 # Installing from Binary Packages
 

@@ -1,0 +1,22 @@
+{
+  "scope": "session",
+  "updated": "2026-08-01T13:28:32Z",
+  "entries": [
+    {
+      "id": "20260801T132832Z-bootstrap-of-specify-instructions-md-sysbench-wasm-fork",
+      "file": "20260801T132832Z-bootstrap-of-specify-instructions-md-sysbench-wasm-fork.md",
+      "scope": "session",
+      "source": "/speckit.instructions",
+      "feature": "",
+      "tags": [
+        "instructions",
+        "bootstrap",
+        "wasm",
+        "convention"
+      ],
+      "title": "Bootstrap of .specify/instructions.md (sysbench WASM fork)",
+      "created": "2026-08-01T13:28:32Z",
+      "summary": "Full reconcile with empty $ARGUMENTS. No pre-existing .specify/instructions.md and no backups => clean bootstrap, recovery path (Action 3) skipped."
+    }
+  ]
+}

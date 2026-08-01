@@ -1,0 +1,23 @@
+{
+  "scope": "knowledge",
+  "updated": "2026-08-01T13:28:48Z",
+  "entries": [
+    {
+      "id": "sysbench-wasm-fork-durable-build-and-code-conventions",
+      "file": "sysbench-wasm-fork-durable-build-and-code-conventions.md",
+      "scope": "knowledge",
+      "source": "/speckit.instructions",
+      "feature": "",
+      "tags": [
+        "convention",
+        "decision",
+        "build",
+        "wasm",
+        "pitfall"
+      ],
+      "title": "sysbench WASM fork: durable build and code conventions",
+      "created": "2026-08-01T13:28:48Z",
+      "summary": "Durable conventions for this fork, verified against source (Constitution Principle II: code is authoritative)."
+    }
+  ]
+}

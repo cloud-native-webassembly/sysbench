@@ -115,3 +115,4 @@ perf.data
 perf.data.old
 src/wasm/.deps/
 configure~
+.specify/tools/*.json
