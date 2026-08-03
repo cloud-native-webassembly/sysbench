@@ -82,7 +82,7 @@ Apply [Feature Integration Protocol](.specify/shared/workflow/feature-integratio
 
 **CRITICAL**: Tasks MUST be organized by user story to enable independent implementation and testing.
 
-**Tests are Constitution-driven (NOT a fixed default)**: Before generating tasks, parse `.specify/memory/constitution.md` and detect any principle whose name or body contains `MUST`, `MANDATORY`, `NON-NEGOTIABLE`, `Test-First`, `TDD`, or `Contract-Driven`.
+**Tests are Constitution-driven (NOT a fixed default)**: Before generating tasks, detect test-mandating principles **deterministically** (token-efficiency program-first — see `.specify/shared/guidelines/token-efficiency.md`): run `grep -nE 'MUST|MANDATORY|NON-NEGOTIABLE|Test-First|TDD|Contract-Driven' .specify/memory/constitution.md` and consume only the matched principle headings/lines — do NOT read the whole constitution into context for this keyword check.
 
 - **Tests default ON** if any such principle exists, OR if the feature specification / `$ARGUMENTS` explicitly requests TDD. In ON mode you MUST emit test tasks (contract, unit, integration as applicable) per user story BEFORE the corresponding implementation tasks. If the constitution defines distinct testing layers (e.g. Layer-1 generator unit tests + Layer-2 build/smoke validation), emit tasks for EVERY layer it mandates.
 - **Tests default OFF** only when no test-mandating principle is found AND the spec is silent on TDD.

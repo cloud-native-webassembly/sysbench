@@ -14,9 +14,9 @@ BuildRequires: mysql-devel
 BuildRequires: mariadb-devel
 %endif
 BuildRequires: postgresql-devel
-BuildRequires: make
-BuildRequires: automake
-BuildRequires: libtool
+BuildRequires: meson >= 1.3
+BuildRequires: ninja-build
+BuildRequires: gcc
 BuildRequires: pkgconfig
 BuildRequires: libaio-devel
 # Use bundled cram for tests
@@ -48,24 +48,18 @@ sysbench comes with the following bundled benchmarks:
 %setup -q
 
 %build
-export CFLAGS="%{optflags}"
-autoreconf -vif
-%configure --with-mysql \
-           --with-pgsql \
-	   --without-gcc-arch
-
-%if 0%{?el6}
-make -j2
-%else
-%make_build
-%endif
+# --without-gcc-arch is gone: that option came from vendored
+# m4/ax_gcc_archflag.m4 and is deliberately dropped (contracts/option-mapping.md
+# option 22). %%meson already passes %%{optflags}.
+%meson -Dmysql=enabled -Dpgsql=enabled
+%meson_build
 
 %install
-%make_install
+%meson_install
 rm -f %{buildroot}%{_docdir}/sysbench/manual.html
 
 %check
-make test
+%meson_test
 
 %files
 %doc ChangeLog COPYING README.md

@@ -38,6 +38,11 @@ Use this checklist to validate a newly created Skill before reporting completion
 - [ ] Steps are executable (not just context/background)
 - [ ] Resource paths are consistent and point to existing files
 
+## Token Efficiency (纪律引用: `.specify/shared/guidelines/token-efficiency.md`)
+
+- [ ] Deterministic steps go to programs (token-efficiency program-first): every fixed-rule text/data judgment in the workflow (pattern match, structural validation, counting, dedup, diff) is delegated to a script/engine step, not the LLM
+- [ ] Data access is summary-level (token-efficiency summary-first): no step instructs injecting a machine-managed data file whole into LLM context; digests/projections/excerpts are used, with escalation per the discipline doc
+
 ## Validation
 
 - [ ] Frontmatter is valid YAML

@@ -116,3 +116,9 @@ perf.data.old
 src/wasm/.deps/
 configure~
 .specify/tools/*.json
+
+# Meson/Ninja build directories (Feature 019 build-system migration)
+/builddir/
+/builddir-*/
+/build/
+.meson-*

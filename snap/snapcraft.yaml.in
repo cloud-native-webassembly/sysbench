@@ -28,8 +28,16 @@ apps:
 parts:
   sysbench:
     source: .
-    plugin: autotools
+    plugin: meson
+    # The snapcraft meson plugin does NOT auto-supply meson and ninja (unlike the
+    # cmake plugin), so both must be declared here explicitly.
+    meson-parameters:
+      - -Dmysql=enabled
     build-packages:
+      - meson
+      - ninja-build
+      - pkg-config
+      - gcc
       - libmysqlclient-dev
     stage-packages:
       - libmysqlclient20

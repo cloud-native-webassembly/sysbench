@@ -3,10 +3,16 @@
 %:
 	dh $@
 
+# The autoreconf override is gone: debhelper auto-detects Meson from the presence
+# of meson.build (Debian::Debhelper::Buildsystem::meson) and drives
+# meson setup / ninja / meson test / meson install itself.
+#
+# --without-gcc-arch is also gone: that option was provided by vendored
+# m4/ax_gcc_archflag.m4 and is deliberately dropped (see
+# contracts/option-mapping.md option 22). Architecture flags remain available
+# via -Dc_args if ever needed.
 override_dh_auto_configure:
-	dh_testdir
-	autoreconf -vif
-	dh_auto_configure -- --with-mysql --with-pgsql --without-gcc-arch
+	dh_auto_configure -- -Dmysql=enabled -Dpgsql=enabled
 
 override_dh_compress:
 	dh_compress -X.lua

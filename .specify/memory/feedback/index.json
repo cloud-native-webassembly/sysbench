@@ -1,10 +1,54 @@
 {
   "store": "feedback",
-  "updated": "2026-08-01T13:29:03Z",
+  "updated": "2026-08-01T17:36:27Z",
   "threshold": 10,
-  "count_since_submission": 1,
+  "count_since_submission": 5,
   "submitted_at": null,
   "entries": [
+    {
+      "id": "20260801T173627Z-speckit-tasks",
+      "file": "20260801T173627Z-speckit-tasks.md",
+      "unit_id": "/speckit.tasks",
+      "unit_type": "command",
+      "run_id": "001-modernize-build-system-tasks-20260802T012000Z",
+      "feature": "001-modernize-build-system",
+      "partial": false,
+      "created": "2026-08-01T17:36:27Z",
+      "summary": "Generated 47 tasks (39 actionable, 8 pre-deferred) across 7 phases for the Meson migration. Tests Mode ON, derived from the constitution's Development Workflow test-first mandate and Principle VI rath"
+    },
+    {
+      "id": "20260801T171041Z-speckit-plan",
+      "file": "20260801T171041Z-speckit-plan.md",
+      "unit_id": "/speckit.plan",
+      "unit_type": "command",
+      "run_id": "001-modernize-build-system-plan-20260802T010900Z",
+      "feature": "001-modernize-build-system",
+      "partial": false,
+      "created": "2026-08-01T17:10:41Z",
+      "summary": "Resumed run after user interruption; deliberately SKIPPED create-new-plan.sh because plan.md was already filled and re-running it would have clobbered the work. Completed the remaining Phase 1 artifac"
+    },
+    {
+      "id": "20260801T162921Z-speckit-clarify",
+      "file": "20260801T162921Z-speckit-clarify.md",
+      "unit_id": "/speckit.clarify",
+      "unit_type": "command",
+      "run_id": "001-modernize-build-system-clarify-20260801T155500Z",
+      "feature": "001-modernize-build-system",
+      "partial": false,
+      "created": "2026-08-01T16:29:21Z",
+      "summary": "Mode A run on requirements.md (no plan.md present; writability probed before generating questions, per the fail-fast rule). Coverage scan found Feature Linkage and Constraints & Tradeoffs Missing, Non"
+    },
+    {
+      "id": "20260801T154843Z-speckit-requirements",
+      "file": "20260801T154843Z-speckit-requirements.md",
+      "unit_id": "/speckit.requirements",
+      "unit_type": "command",
+      "run_id": "001-modernize-build-system-20260801T133500Z",
+      "feature": "001-modernize-build-system",
+      "partial": false,
+      "created": "2026-08-01T15:48:43Z",
+      "summary": "First spec in this repository (no .specify/specs/ existed), so this run bootstrapped spec conventions as well as drafting. Delegated a thorough build-system inventory to a subagent and verified its lo"
+    },
     {
       "id": "20260801T132903Z-speckit-instructions",
       "file": "20260801T132903Z-speckit-instructions.md",

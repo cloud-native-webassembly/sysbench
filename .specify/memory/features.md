@@ -4,8 +4,9 @@ This index tracks all functional and non-functional features managed within the 
 
 Scope: this fork extends sysbench from a database/OS benchmark tool into a harness for
 benchmarking external systems, currently focused on WASM runtimes. Features below cover that
-extension; upstream sysbench capabilities (OLTP, fileio, cpu, memory, threads, mutex, Lua and
-Python scripting) are inherited and not re-registered here.
+extension plus project-wide engineering work (e.g. the build system); upstream sysbench
+capabilities (OLTP, fileio, cpu, memory, threads, mutex, Lua and Python scripting) are
+inherited and not re-registered here.
 
 <!--
   ACTION REQUIRED for any command that mutates this table (`/speckit.feature`,
@@ -20,7 +21,7 @@ Python scripting) are inherited and not re-registered here.
       awk -F'|' '/^\| [0-9]{3} \|/ {n++} END{print n}' .specify/memory/features.md
 -->
 
-**Total Features**: 18 _(auto-derived; recompute on every edit — see comment above)_
+**Total Features**: 19 _(auto-derived; recompute on every edit — see comment above)_
 
 Status values follow the canonical state machine in
 `.specify/templates/feature-details-template.md` § "Canonical Status State Machine".
@@ -40,6 +41,7 @@ completed `/speckit.plan` → `/speckit.implement` cycles.
 | 007 | Host-Sandbox Data Exchange | Packed address/size encoding plus app-to-native translation for passing buffers between sysbench and a WASM module. | Implemented | [007](.specify/memory/features/007.md) | 2026-08-01 |
 | 008 | WASM Benchmark Workload Suite | A set of C-sourced WASM modules exporting `event`, compiled by WASI-SDK, used as the workloads under test. | Implemented | [008](.specify/memory/features/008.md) | 2026-08-01 |
 | 009 | WASM Build Configuration | Autoconf/automake wiring that detects each WASM SDK and conditionally compiles the corresponding backend. | Implemented | [009](.specify/memory/features/009.md) | 2026-08-01 |
+| 019 | Modern Build System | Replace GNU Autotools with a modern build system delivering incremental parallel builds and readable, maintainable configuration. | Planned | [019](.specify/memory/features/019.md) | 2026-08-01 |
 
 ## Non-functional Features
 

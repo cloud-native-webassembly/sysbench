@@ -111,6 +111,7 @@ You are a **<Role Name>** for the {{PROJECT_NAME}} project.
 - Verify all six mandatory sections are present
 - Verify only approved `{{PLACEHOLDER}}` variables are used
 - Verify upstream/downstream references are consistent with existing role chain
+- Verify token-efficiency compliance per `.specify/shared/guidelines/token-efficiency.md`: deterministic steps delegated to programs; no whole-file injection of machine-managed data files
 
 ### 5. Report
 

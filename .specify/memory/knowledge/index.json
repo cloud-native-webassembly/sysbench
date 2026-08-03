@@ -1,7 +1,61 @@
 {
   "scope": "knowledge",
-  "updated": "2026-08-01T13:28:48Z",
+  "updated": "2026-08-01T17:23:44Z",
   "entries": [
+    {
+      "id": "measured-baseline-inverts-spec-premise-autotools-under-build",
+      "file": "measured-baseline-inverts-spec-premise-autotools-under-build.md",
+      "scope": "knowledge",
+      "source": "/speckit.tasks",
+      "feature": "001-modernize-build-system",
+      "tags": [
+        "decision",
+        "build",
+        "baseline",
+        "defect",
+        "measurement",
+        "correction"
+      ],
+      "title": "MEASURED baseline inverts spec premise: autotools under-builds (stale), and the tree does not build as-shipped",
+      "created": "2026-08-01T17:23:44Z",
+      "summary": "Measured on an isolated copy of the tree, 2026-08-02, 192-core x86_64 Linux, gcc. These supersede the spec's qualitative claims."
+    },
+    {
+      "id": "meson-selected-for-build-migration-three-verified-build-fact",
+      "file": "meson-selected-for-build-migration-three-verified-build-fact.md",
+      "scope": "knowledge",
+      "source": "/speckit.plan",
+      "feature": "001-modernize-build-system",
+      "tags": [
+        "decision",
+        "build",
+        "meson",
+        "autotools",
+        "migration",
+        "defect"
+      ],
+      "title": "Meson selected for build migration + three verified build facts",
+      "created": "2026-08-01T17:11:08Z",
+      "summary": "Planning outcome for spec 001-modernize-build-system / Feature 019. All facts below were verified directly against source or by execution."
+    },
+    {
+      "id": "build-system-migration-settled-decisions-feature-019",
+      "file": "build-system-migration-settled-decisions-feature-019.md",
+      "scope": "knowledge",
+      "source": "/speckit.clarify",
+      "feature": "001-modernize-build-system",
+      "tags": [
+        "decision",
+        "build",
+        "autotools",
+        "migration",
+        "platform",
+        "preference"
+      ],
+      "title": "Build-system migration: settled decisions (Feature 019)",
+      "created": "2026-08-01T16:29:38Z",
+      "summary": "Durable decisions from the 2026-08-01 clarification of spec 001-modernize-build-system. These are user-confirmed and must not be contradicted without explicit re-confirmation."
+    },
     {
       "id": "sysbench-wasm-fork-durable-build-and-code-conventions",
       "file": "sysbench-wasm-fork-durable-build-and-code-conventions.md",

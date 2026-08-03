@@ -11,18 +11,20 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Autogen
-        run: ./autogen.sh
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y meson ninja-build pkg-config
       - name: Configure
-        run: ./configure --with-mysql --with-pgsql
+        run: meson setup builddir -Dmysql=enabled -Dpgsql=enabled
       - name: Build
-        run: make
+        run: meson compile -C builddir
       - name: MySQL version
         run: mysql_config --version
       - name: Sysbench version
-        run: ./src/sysbench --version
+        run: ./builddir/src/sysbench --version
       - name: Test
-        run: make test
+        run: meson test -C builddir --print-errorlogs
 
   build_mariadb:
     runs-on: ubuntu-22.04
@@ -37,15 +39,47 @@ jobs:
         run: sudo apt install libmariadb-dev libmariadb-dev-compat
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Autogen
-        run: ./autogen.sh
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y meson ninja-build pkg-config
       - name: Configure
-        run: ./configure --with-mysql --with-pgsql
+        run: meson setup builddir -Dmysql=enabled -Dpgsql=enabled
       - name: Build
-        run: make
+        run: meson compile -C builddir
       - name: MariaDB version
         run: mariadb_config --version
       - name: Sysbench version
-        run: ./src/sysbench --version
+        run: ./builddir/src/sysbench --version
       - name: Test
-        run: make test
+        run: meson test -C builddir --print-errorlogs
+
+  # Build-matrix job: proves the conditional wiring tolerates missing optional
+  # components (SC-006 subset check, gate G-3). Each configuration must configure
+  # and compile with no optional dependency beyond what it names.
+  build_matrix:
+    runs-on: ubuntu-22.04
+    name: Configuration matrix
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - name: minimal
+            opts: ""
+          - name: mysql-only
+            opts: "-Dmysql=enabled"
+          - name: pgsql-only
+            opts: "-Dpgsql=enabled"
+          - name: both-drivers
+            opts: "-Dmysql=enabled -Dpgsql=enabled"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y meson ninja-build pkg-config
+      - name: Configure (${{ matrix.config.name }})
+        run: meson setup builddir ${{ matrix.config.opts }}
+      - name: Build (${{ matrix.config.name }})
+        run: meson compile -C builddir

@@ -62,7 +62,7 @@ Consult the project glossary (`.specify/memory/glossary.md`, ambient via the Doc
    - If user proceeds: require waiver comment, record in `REQUIREMENTS_DIR/waivers.md`
    - If all complete: proceed automatically
 
-3. **Load context**: tasks.md (REQUIRED), plan.md (REQUIRED), data-model.md, contracts/, research.md, quickstart.md (IF EXISTS).
+3. **Load context (summary-first — see `.specify/shared/guidelines/token-efficiency.md`)**: preload ONLY tasks.md (REQUIRED) and plan.md (REQUIRED); open data-model.md, contracts/, research.md, quickstart.md on demand as targeted excerpts when the current task needs them — artifacts authored in the same session may be consumed from conversation context after an existence check.
 
 4. **Project Setup Verification**: Create/verify ignore files based on detected tech stack. For detailed patterns per technology, see `.specify/shared/constants/ignore-patterns.md`. Also verify the ignore rules ADMIT every output artifact this run is expected to write (reports, logs, per-session subdirectory files) — a whitelist that misses a nested path surfaces as a silent loss at report-writing time, so check it here with `git check-ignore` on a representative expected path. **Writability pre-probe (fail fast)**: walk every directory named in plan.md's Source Code tree and Mirror Obligations rows and write-bit-probe each (touch-test); report ALL unwritable paths (e.g. root-owned container dirs) up front with the `sudo chown -R $USER <dir>` remedy — do NOT let a phase discover an unwritable target mid-run.
 

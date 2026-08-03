@@ -105,6 +105,7 @@ Rules:
 - The team directory `.specify/teams/<slug>/` holds **only** `team.md` and `runs/` — no intermediate files, no deliverables.
 - **Only final deliverables** count as standard output and escape to real target paths. Intermediate handoff files between serial stages are run intermediates → `.specify/teams/.work/<slug>/` (file-path-only handoff still works: downstream stages read from the workspace).
 - The run workspace is created on demand by the orchestrator at run time; it is transient and safe to delete. Do not rely on it across runs — durable knowledge belongs in the tracked report.
+- Token efficiency (see `.specify/shared/guidelines/token-efficiency.md`): agent prompts and stage handoffs carry digests/paths, never whole machine-managed data files; deterministic checks (counting, diff, pattern match) run as program steps, not LLM judgments — validate this when persisting a team.
 
 ### Report contract
 

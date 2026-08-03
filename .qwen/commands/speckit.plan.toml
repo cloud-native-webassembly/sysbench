@@ -115,9 +115,9 @@ This integration ensures that all feature planning activities are properly track
 
 ### Phase 0: Research Review & Context
 
-1. **Information Gathering**:
-   - **Project Docs**: Read `README.md` and all files in `docs/` to understand system architecture, guidelines, and setup.
-   - **Feature Memory**: Read `.specify/memory/features.md` and all files in `.specify/memory/features/` to identify reusable patterns, potential conflicts, and integration points with existing features.
+1. **Information Gathering** (summary-first — see `.specify/shared/guidelines/token-efficiency.md`):
+   - **Project Docs**: consult `README.md` and pull `docs/` content as targeted excerpts for the areas this plan touches — do NOT read all files in `docs/` wholesale.
+   - **Feature Memory**: project the feature index with `grep -E '^\| [0-9]{3}' .specify/memory/features.md` (ID/name/status rows) and read ONLY the detail file(s) of the bound/related Feature(s) under `.specify/memory/features/` — do NOT read the whole directory; escalate per the discipline doc's ladder when a row genuinely needs more depth.
    - **Codebase exploration pass**: before filling the template, run a dedicated exploration pass (use an Explore subagent when available) over the code the plan will touch — touchpoints, existing precedents, and downstream consumers. Use the findings to confirm or refute the spec's documented assumptions in one round rather than discovering them mid-design.
    - **Research Check**: Check if `research.md` exists in the local directory.
      - **If yes**: Read and analyze its contents. Use the Decisions and Rationale to resolve "NEEDS CLARIFICATION" items in the Technical Context.

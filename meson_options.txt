@@ -1,0 +1,101 @@
+# sysbench build options
+#
+# Capability parity with the 22 Autotools options. Authoritative mapping:
+#   .specify/specs/001-modernize-build-system/contracts/option-mapping.md
+#
+# Accounting (SC-005): 22 total capabilities
+#   - 15 declared here as project options
+#   - 6 provided by Meson built-ins (no project option needed):
+#       --enable-largefile   -> handled natively by Meson
+#       --with-debug         -> -Dbuildtype=debug
+#       --enable-coverage    -> -Db_coverage=true
+#       --enable-asan        -> -Db_sanitize=address
+#       --enable-msan        -> -Db_sanitize=memory
+#       --disable-fail       -> -Dwerror=false  (Meson default is already false)
+#   - 1 deliberately dropped:
+#       --with-gcc-arch      -> DROPPED. Provided by vendored m4/ax_gcc_archflag.m4
+#                               (264 lines) doing x86 CPUID probing, which FR-019
+#                               removes from the supported platform set. Both
+#                               debian/rules and rpm/sysbench.spec already pass
+#                               --without-gcc-arch. No capability is lost: use
+#                               -Dc_args=-march=native.
+#
+# Additionally, 'wasi-sdk-home' is declared below. It is NOT one of the 22 legacy
+# capabilities: the Autotools build read $WASI_SDK_HOME directly from the
+# environment (src/wasm/Makefile.am:17-18) and exposed no configure option for
+# it. It is a new convenience, so the parity count remains 15 + 6 + 1 = 22.
+#
+# 'feature' options are tri-state (enabled/disabled/auto), which makes "I require
+# this" and "use it if available" distinct intents. Requesting an unsatisfiable
+# 'enabled' feature fails configuration (contract C-4, FR-013) — it is never
+# silently ignored, which is the defect this migration closes.
+
+# --- Database drivers -------------------------------------------------------
+
+option('mysql', type: 'feature', value: 'auto',
+       description: 'MySQL driver support (was --with-mysql, default yes)')
+
+option('pgsql', type: 'feature', value: 'disabled',
+       description: 'PostgreSQL driver support (was --with-pgsql, default no)')
+
+option('mysql-includes', type: 'string', value: '',
+       description: 'MySQL header directory; empty = discover via mysql_config (was --with-mysql-includes)')
+
+option('mysql-libs', type: 'string', value: '',
+       description: 'MySQL library directory; empty = discover via mysql_config (was --with-mysql-libs)')
+
+option('pgsql-includes', type: 'string', value: '',
+       description: 'PostgreSQL header directory; empty = discover via pg_config (was --with-pgsql-includes)')
+
+option('pgsql-libs', type: 'string', value: '',
+       description: 'PostgreSQL library directory; empty = discover via pg_config (was --with-pgsql-libs)')
+
+# --- Scripting backends -----------------------------------------------------
+
+option('python', type: 'feature', value: 'disabled',
+       description: 'Embedded Python backend (was --with-python, default no)')
+
+# --- Bundled dependencies ---------------------------------------------------
+
+option('luajit', type: 'combo', choices: ['bundled', 'system'], value: 'bundled',
+       description: 'LuaJIT source: in-tree copy or system library (was --with-system-luajit)')
+
+option('concurrency-kit', type: 'combo', choices: ['bundled', 'system'], value: 'bundled',
+       description: 'Concurrency Kit source: in-tree copy or system library (was --with-system-ck)')
+
+# --- Platform features ------------------------------------------------------
+
+option('aio', type: 'feature', value: 'auto',
+       description: 'Linux asynchronous I/O for the fileio benchmark (was --enable-aio, default yes)')
+
+# --- WASM support -----------------------------------------------------------
+#
+# 'wasm' is the master gate. Enabling any runtime below while 'wasm' is
+# explicitly disabled is a configuration ERROR, not a silent no-op
+# (contract C-5, INV-1).
+
+option('wasm', type: 'feature', value: 'disabled',
+       description: 'WASM benchmark backend master gate (was --with-wasm, default no)')
+
+option('wamr', type: 'feature', value: 'disabled',
+       description: 'WebAssembly Micro Runtime backend; implies wasm (was --with-wamr)')
+
+option('wasmedge', type: 'feature', value: 'disabled',
+       description: 'WasmEdge runtime backend; implies wasm (was --with-wasmedge)')
+
+option('wasmer', type: 'feature', value: 'disabled',
+       description: 'Wasmer runtime backend; implies wasm (was --with-wasmer)')
+
+option('wasmtime', type: 'feature', value: 'disabled',
+       description: 'Wasmtime runtime backend; implies wasm (was --with-wasmtime)')
+
+# --- Toolchain paths --------------------------------------------------------
+#
+# WASI-SDK is a separate cross-compiler used only for the src/wasm guest
+# workload modules. It is NOT a runtime SDK and is not one of the 22 legacy
+# capabilities — the Autotools build read $WASI_SDK_HOME directly
+# (src/wasm/Makefile.am:17-18) with no configure option at all. This option adds
+# an explicit path form while keeping the environment variable as fallback.
+
+option('wasi-sdk-home', type: 'string', value: '',
+       description: 'WASI-SDK install prefix for building src/wasm guest modules; empty = use $WASI_SDK_HOME')

@@ -1,7 +1,59 @@
 {
   "scope": "session",
-  "updated": "2026-08-01T13:28:32Z",
+  "updated": "2026-08-03T03:00:23Z",
   "entries": [
+    {
+      "id": "20260803T030023Z-build-system-framework-round-implemented-39-47-tasks-8-defer",
+      "file": "20260803T030023Z-build-system-framework-round-implemented-39-47-tasks-8-defer.md",
+      "scope": "session",
+      "source": "/speckit.implement",
+      "feature": "001-modernize-build-system",
+      "tags": [
+        "implement",
+        "build",
+        "meson",
+        "framework",
+        "deferred",
+        "sc004-shortfall"
+      ],
+      "title": "Build-system framework round implemented (39/47 tasks, 8 deferred)",
+      "created": "2026-08-03T03:00:23Z",
+      "summary": "Closed 39 of 47 tasks; 8 pre-deferred (T022,T023,T025,T028,T030,T045,T046,T047). Zero open. All 6 completion gates PASS. Feature 019 stays Planned — the Pre-Status-Flip Gate is not satisfied because S"
+    },
+    {
+      "id": "20260801T173644Z-tasks-md-generated-for-build-migration-framework-only-round",
+      "file": "20260801T173644Z-tasks-md-generated-for-build-migration-framework-only-round.md",
+      "scope": "session",
+      "source": "/speckit.tasks",
+      "feature": "001-modernize-build-system",
+      "tags": [
+        "tasks",
+        "build",
+        "meson",
+        "deferred",
+        "scope"
+      ],
+      "title": "tasks.md generated for build migration (framework-only round)",
+      "created": "2026-08-01T17:36:44Z",
+      "summary": "Created .specify/specs/001-modernize-build-system/tasks.md: 47 tasks (39 actionable + 8 pre-deferred) in 7 phases. Tests Mode ON. Feature 019 stays Planned (tasks phase does not advance status)."
+    },
+    {
+      "id": "20260801T154900Z-spec-001-modernize-build-system-drafted-first-spec-in-repo",
+      "file": "20260801T154900Z-spec-001-modernize-build-system-drafted-first-spec-in-repo.md",
+      "scope": "session",
+      "source": "/speckit.requirements",
+      "feature": "001-modernize-build-system",
+      "tags": [
+        "requirements",
+        "build",
+        "autotools",
+        "migration",
+        "baseline"
+      ],
+      "title": "Spec 001 modernize-build-system drafted (first spec in repo)",
+      "created": "2026-08-01T15:49:00Z",
+      "summary": "Created branch 001-modernize-build-system and .specify/specs/001-modernize-build-system/{requirements.md,checklists/requirements.md}. First spec in the repo, so it also establishes spec conventions (a"
+    },
     {
       "id": "20260801T132832Z-bootstrap-of-specify-instructions-md-sysbench-wasm-fork",
       "file": "20260801T132832Z-bootstrap-of-specify-instructions-md-sysbench-wasm-fork.md",

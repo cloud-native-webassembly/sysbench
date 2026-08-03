@@ -33,7 +33,7 @@ Goal: Detect and reduce ambiguity or missing decision points in the current phas
 
 3. **Writability probe (fail fast)**: before generating any questions, verify the target file is writable (touch-test or write-bit stat on the target and its directory). If unwritable (e.g. root-owned spec dir), STOP immediately with an actionable message (owning path + fix command such as `sudo chown -R $USER <dir>`) — do NOT run the question loop first and lose the integration work at the final write. If the user chooses to proceed read-only, batch all integrations into ONE write attempt at the end instead of the per-answer saves the mode's integration rules call for.
 
-4. **Load common context**: `.specify/memory/constitution.md`, `README.md`, relevant `docs/`, `.specify/memory/features.md`, `research.md` (if exists).
+4. **Load common context (summary-first — see `.specify/shared/guidelines/token-efficiency.md`)**: project `.specify/memory/features.md` via `grep -E '^\| [0-9]{3}'` index rows; read `research.md` (if exists); pull `.specify/memory/constitution.md`, `README.md`, and `docs/` content only as targeted excerpts when a candidate question actually requires them — never wholesale.
 
 5. **Load mode-specific context** (see taxonomy reference).
 

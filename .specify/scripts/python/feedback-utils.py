@@ -382,10 +382,11 @@ def action_status(args: argparse.Namespace) -> Dict[str, Any]:
 
 def action_list(args: argparse.Namespace) -> Dict[str, Any]:
     workspace_root = resolve_workspace_root(args.workspace_root)
-    limit = max(1, args.limit)
+    limit = None if args.limit == 0 else max(1, args.limit)
     unit_id = (args.unit_id or "").strip()
     unit_type = (args.unit_type or "").strip()
     since = (args.since or "").strip()
+    contains = (args.contains or "").strip().lower()
 
     items: List[Dict[str, Any]] = []
     for entry in load_index(workspace_root).get("entries", []):
@@ -395,11 +396,19 @@ def action_list(args: argparse.Namespace) -> Dict[str, Any]:
             continue
         if since and str(entry.get("created", "")) < since:
             continue
+        if contains:
+            haystack = str(entry.get("summary", ""))
+            entry_file = feedback_dir(workspace_root) / entry.get("file", "")
+            if entry_file.is_file():
+                haystack += "\n" + entry_file.read_text(encoding="utf-8")
+            if contains not in haystack.lower():
+                continue
         item = dict(entry)
         item["path"] = (FEEDBACK_SUBDIR / entry["file"]).as_posix()
         items.append(item)
     items.sort(key=lambda e: e.get("created", ""), reverse=True)
-    return {"count": min(len(items), limit), "matches": items[:limit]}
+    matches = items if limit is None else items[:limit]
+    return {"count": len(matches), "matches": matches}
 
 
 def action_mark_submitted(args: argparse.Namespace) -> Dict[str, Any]:
@@ -656,7 +665,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--feature", default=None)
     parser.add_argument("--threshold", type=int, default=None)
     parser.add_argument("--since", default=None)
-    parser.add_argument("--limit", type=int, default=5)
+    parser.add_argument("--limit", type=int, default=5,
+                        help="list: max entries returned; 0 = no limit")
+    parser.add_argument("--contains", default=None,
+                        help="list: case-insensitive substring filter over entry "
+                             "summary + body (engine-side read; output stays summary-level)")
     parser.add_argument("--all", action="store_true",
                         help="package: include entries from before the last "
                              "mark-submitted as well")

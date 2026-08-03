@@ -93,6 +93,11 @@ Use this checklist when improving a Skill after a real execution. The focus is e
 - Registry rows are sorted and no `None yet.` placeholder remains once real entries exist.
 - `/speckit.skills` prompt sources use `./scripts/` for Skill-owned scripts and call `refresh-tools.sh` with explicit source flags before `--json`.
 
+## Token Efficiency (纪律引用: `.specify/shared/guidelines/token-efficiency.md`)
+
+- Improvements preserve or restore token-efficiency program-first: fixed-rule judgments stay delegated to scripts/engines; no change moves deterministic work back into LLM context.
+- Improvements preserve or restore token-efficiency summary-first: no change introduces whole-file injection of machine-managed data; summary/projection access modes are preferred.
+
 ## Validation Summary Template
 
 Report results with:

@@ -50,6 +50,14 @@ Classify each task by these signals: scope/size, uncertainty/novelty, blast radi
 - **Tie-break**: when a task's signals span more than one tier, choose the **higher tier**. Blast-radius/reversibility and requirements clarity dominate — a tiny edit to a shared, irreversible, or security-sensitive surface is High-stakes, not Trivial.
 - **Default**: if a task cannot yet be classified, treat it as **Standard**; but when the reason is unclear or under-specified requirements, that is itself a High-stakes / Ambiguous signal — clarify before proceeding rather than guessing.
 
+## Token Efficiency Discipline
+
+LLM token usage efficiency is a framework-level quality attribute. The full discipline is defined in a single source of truth — `.specify/shared/guidelines/token-efficiency.md` (do NOT copy its rules; reference the file) — and binds all commands, skills, and agents:
+
+- **Program-First (程序优先)**: text/data judgments expressible as fixed rules (pattern matching, structural validation, counting, dedup, sorting, diff) go to deterministic programs (scripts/engines/regex), never to the LLM; the LLM receives verdicts or digests only.
+- **Summary-First (摘要优先)**: never inject the whole raw content of machine-managed data files (feedback, memory, evidence, history stores, run artifacts, inventories) into LLM context; consume digests, field projections, or targeted excerpts, escalating per the discipline doc's escalation ladder (exceptions: edit target, small-file threshold, recorded justification).
+- **Consumption Observation (消耗观察)**: at feedback wrap-up, self-assess avoidable token spend; findings carry the stable `token-efficiency` marker (retrievable via `feedback-utils.py --action list --contains token-efficiency`); never fabricate token counts.
+
 ## Dogfooding Practice
 
 Dogfooding means the people who build a product also rely on it in their real daily work — developer and user tightly linked, often the same team — so a smooth **use → feedback → iterate** loop forms naturally. A project that provides development-assistance capabilities proves them the way a compiler proves itself by self-hosting: only a tool that performs well in its own engineering has earned the credibility to assist others. This section identifies two loops that already exist — it adds no new tools, steps, or storage.

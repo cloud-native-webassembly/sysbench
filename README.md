@@ -234,6 +234,17 @@ Assuming you have Xcode (or Xcode Command Line Tools) and Homebrew installed:
 ```
 
 ## Build and Install
+
+> **Migration in progress.** This fork is moving from Autotools to Meson
+> (Feature 019). **Autotools is still authoritative** — the Meson files present in
+> the tree are scaffolding and are not yet verified to build. See
+> [docs/build/overview.md](docs/build/overview.md) and
+> [docs/build/migration-status.md](docs/build/migration-status.md) for current
+> status, including two known defects that prevent the Autotools build from
+> working as shipped.
+
+### Autotools (current, authoritative)
+
 ``` shell
     ./autogen.sh
     # Add --with-pgsql to build with PostgreSQL support
@@ -251,6 +262,27 @@ to `./configure`.
 To compile sysbench without MySQL support, use `--without-mysql`. If no
 database drivers are available database-related scripts will not work,
 but other benchmarks will be functional.
+
+### Meson (scaffolding, not yet verified)
+
+``` shell
+    meson setup builddir -Dmysql=enabled
+    meson compile -C builddir
+    meson test -C builddir
+    meson install -C builddir
+```
+
+Options use tri-state `enabled`/`disabled`/`auto` semantics, so requesting a
+component whose dependency is missing **fails with a clear message** instead of
+being silently ignored. Non-standard MySQL locations use `-Dmysql-includes=` and
+`-Dmysql-libs=`. To build with WASM runtime support:
+
+``` shell
+    meson setup builddir -Dwasm=enabled -Dwamr=enabled
+```
+
+See [docs/build/dependencies.md](docs/build/dependencies.md) for every dependency
+and how it is discovered.
 
 # Usage
 
